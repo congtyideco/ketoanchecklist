@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Checklist Pro (Bản Hoàn Chỉnh - Đã Tối Ưu)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* Thêm tiền tố 'acc-checklist-' vào các lớp CSS tùy chỉnh */
+        body { background-color: #f0f2f5; font-size: 14px; }
+        .acc-checklist-dashboard { position: sticky; top: 20px; }
+        .acc-checklist-status-select { font-weight: bold; }
+        .acc-checklist-status-not-started { color: #dc3545; border-color: #dc3545; }
+        .acc-checklist-status-in-progress { color: #ffc107; border-color: #ffc107; }
+        .acc-checklist-status-completed { color: #198754; border-color: #198754; }
+        #acc-checklist-reportModal .modal-body { white-space: pre-wrap; font-family: monospace; background-color: #f8f9fa; }
+
+        .acc-checklist-floating-btn {
+            background-color: #004a99;
+            color: white;
+            border: 2px solid white;
+            border-radius: 25px;
+            padding: 10px 15px;
+            font-weight: bold;
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+        }
+
+        .acc-checklist-floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .acc-checklist-floating-btn i {
+            margin-right: 8px;
+            font-size: 1.3rem;
+        }
+        
+        #acc-checklist-floatingBtn {
+            background-color: #dc3545;
+        }
+
+        #acc-checklist-mainAppModal .modal-dialog { max-width: 95vw; width: 1600px; }
+        #acc-checklist-mainAppModal .modal-content { height: 90vh; }
+        #acc-checklist-mainAppModal .modal-body { overflow-y: auto; background-color: #f8f9fa; }
+        
+        .acc-checklist-header-section {
+            background-color: #004a99; color: white; padding: 1rem;
+            border-radius: 0.5rem; margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .acc-checklist-task-card {
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 0.5rem;
+        }
+        .acc-checklist-task-card .card-header { font-weight: bold; font-size: 1.2rem; }
+        .acc-checklist-notes-input { width: 100%; border: 1px solid #eee; padding: 5px; border-radius: 4px; }
+
+        .acc-checklist-delete-btn { opacity: 0.5; transition: opacity 0.2s; }
+        .list-group-item:hover .acc-checklist-delete-btn { opacity: 1; }
+        .btn-loading .spinner-border { width: 1rem; height: 1rem; }
+
+        .container {
+            padding-top: 5rem;
+            padding-bottom: 5rem;
+        }
+
+        .text-primary {
+            color: #004a99 !important;
+        }
+
+        .rounded {
+            border-radius: 0.5rem !important;
+        }
+
+        .shadow {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container text-center py-5">
+        <h1 class="mb-4 text-primary">HÃY CÙNG NHAU KIỂM SOÁT KẾ TOÁN TỐT ĐỂ CHÚNG TA PHÁT TRIỂN</h1>
+        <div class="d-flex justify-content-center">
+            <img src="https://cdn.imgpile.com/f/im0vJIV_xl.png" alt="Giao diện đẹp" class="img-fluid rounded shadow" style="max-width: 80%; height: auto;">
+        </div>
+    </div>
+
+    <div style="position: fixed; top: 60px; left: 20px; z-index: 1040; display: flex; flex-direction: column; gap: 10px;">
+        <a href="https://erp-ideco.skyit.vn/#/app/dashboard/main" style="text-decoration: none;">
+            <button id="acc-checklist-erpBtn" class="acc-checklist-floating-btn">
+                <i class="bi bi-house-door-fill"></i> ERP HOME
+            </button>
+        </a>
+        <button id="acc-checklist-floatingBtn" class="acc-checklist-floating-btn" data-bs-toggle="modal" data-bs-target="#acc-checklist-selectionModal">
+            <i class="bi bi-card-checklist"></i> Kế toán Checklist
+        </button>
+    </div>
+    
+    <div class="modal fade" id="acc-checklist-selectionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-check-fill"></i> Bảng Chọn Checklist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">Chọn checklist đã có hoặc tạo mới.</p>
+                    <div id="acc-checklist-accountantList" class="list-group" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" onclick="openNewAccountantModal()">
+                        <i class="bi bi-plus-circle"></i> Tạo Checklist Mới
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="acc-checklist-mainAppModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                 <div class="modal-header bg-light">
+                    <h5 class="modal-title text-primary" id="acc-checklist-mainAppModalLabel"></h5>
+                    <button type="button" class="btn btn-outline-secondary btn-sm me-auto ms-4" onclick="backToSelection()">
+                        <i class="bi bi-arrow-left-right"></i> Quay lại Bảng Chọn
+                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="header-section acc-checklist-header-section text-center">
+                            <h2><i class="bi bi-card-checklist"></i> BẢNG KIỂM SOÁT CÔNG VIỆC KẾ TOÁN THÁNG - IDECO copywrite</h2>
+                            <h5 id="acc-checklist-currentMonth"></h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="card acc-checklist-dashboard">
+                                    <div class="card-header bg-dark text-white"><i class="bi bi-speedometer2"></i> Bảng Điều Khiển</div>
+                                    <div class="card-body">
+                                        <h5>Tổng Quan Tiến Độ</h5>
+                                        <div class="progress" style="height: 30px;"><div id="acc-checklist-totalProgressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 0%; font-size: 1rem;">0%</div></div>
+                                        <hr>
+                                        <div id="acc-checklist-summary">
+                                            <p class="mb-1"><strong>Tổng số công việc:</strong> <span id="acc-checklist-totalTasks">0</span></p>
+                                            <p class="mb-1 text-success"><strong><i class="bi bi-check-circle-fill"></i> Hoàn thành:</strong> <span id="acc-checklist-completedTasks">0</span></p>
+                                            <p class="mb-1 text-warning"><strong><i class="bi bi-play-circle-fill"></i> Đang làm:</strong> <span id="acc-checklist-inProgressTasks">0</span></p>
+                                            <p class="mb-1 text-danger"><strong><i class="bi bi-x-circle-fill"></i> Chưa làm:</strong> <span id="acc-checklist-notStartedTasks">0</span></p>
+                                        </div>
+                                        <hr>
+                                        <div class="d-grid">
+                                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#acc-checklist-reportModal"><i class="bi bi-file-earmark-text"></i> Tạo Báo Cáo Nhanh</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-9">
+                                <div id="acc-checklist-taskList"></div>
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#acc-checklist-addTaskModal"><i class="bi bi-plus-circle"></i> Thêm Công Việc Mới</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="acc-checklist-newAccountantModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Tạo Checklist Mới</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <label for="acc-checklist-newAccountantNameInput" class="form-label">Nhập tên Kế toán viên:</label>
+                    <input type="text" id="acc-checklist-newAccountantNameInput" class="form-control" placeholder="Ví dụ: Nguyễn Thị Lan">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" id="acc-checklist-saveNewAccountantBtn" class="btn btn-primary" onclick="createNewChecklist()">Lưu và Bắt đầu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="acc-checklist-addTaskModal" tabindex="-1" aria-labelledby="acc-checklist-addTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="acc-checklist-addTaskModalLabel">Thêm Công Việc Mới</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <form id="acc-checklist-addTaskForm">
+                        <div class="mb-3"><label for="acc-checklist-taskName" class="form-label">Tên công việc</label><input type="text" class="form-control" id="acc-checklist-taskName" required></div>
+                        <div class="mb-3">
+                            <label for="acc-checklist-taskCategory" class="form-label">Phân loại</label>
+                            <select class="form-select" id="acc-checklist-taskCategory" required>
+                                <option value="Đầu kỳ">Công việc đầu kỳ</option>
+                                <option value="Trong kỳ">Công việc trong kỳ</option>
+                                <option value="Cuối kỳ - Thuế & Báo cáo">Công việc cuối kỳ - Thuế & Báo cáo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3"><label for="acc-checklist-taskDeadline" class="form-label">Hạn chót (Tùy chọn)</label><input type="date" class="form-control" id="acc-checklist-taskDeadline"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="addTask()">Thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="acc-checklist-reportModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Báo Cáo Nhanh Tiến Độ</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="acc-checklist-reportContent"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button><button type="button" class="btn btn-primary" onclick="copyReport()"><i class="bi bi-clipboard"></i> Sao chép</button></div></div></div></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // Cấu hình Firebase không thay đổi
+    const firebaseConfig = { 
+        apiKey : "AIzaSyB4cHf-DQ3iczPH25ocMY1_dL5gbSGzLKg" , 
+        authDomain : "baocaonhanh-8cfc6.firebaseapp.com" , 
+        databaseURL : "https://baocaonhanh-8cfc6-default-rtdb.firebaseio.com" , 
+        projectId : "baocaonhanh-8cfc6" , 
+        storageBucket : "baocaonhanh-8cfc6.firebasestorage.app" , 
+        messagingSenderId : "912512588357" , 
+        appId : "1:912512588357:web:d1956a0aaefb7be6c4212c" , 
+        measurementId : "G-SJM5VBK3Z2" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let currentAccountantId = null;
+    let currentChecklistData = null;
+    let selectionModal, mainAppModal, newAccountantModal, addTaskModal;
+
+    // Dữ liệu công việc ban đầu không thay đổi
+    const initialTasks = [
+        { id: 1, category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
+        { id: 2, category: 'Đầu kỳ', name: 'Kiểm tra số dư đầu kỳ của các tài khoản trên bảng cân đối', status: 'not-started', notes: '', deadline: '' },
+        { id: 3, category: 'Trong kỳ', name: 'Hạch toán và kiểm tra các nghiệp vụ mua hàng, hóa đơn đầu vào', status: 'not-started', notes: 'Đối chiếu với hợp đồng, biên bản giao hàng...', deadline: '' },
+        { id: 4, category: 'Trong kỳ', name: 'Hạch toán và kiểm tra các nghiệp vụ bán hàng, hóa đơn đầu ra', status: 'not-started', notes: 'Kiểm tra chính sách chiết khấu, công nợ', deadline: '' },
+        { id: 5, category: 'Trong kỳ', name: 'Theo dõi, đối chiếu công nợ phải thu (TK 131)', status: 'not-started', notes: '', deadline: '' },
+        { id: 6, category: 'Trong kỳ', name: 'Theo dõi, đối chiếu công nợ phải trả (TK 331)', status: 'not-started', notes: '', deadline: '' },
+        { id: 7, category: 'Trong kỳ', name: 'Hạch toán các nghiệp vụ liên quan đến tiền mặt, tiền gửi ngân hàng', status: 'not-started', notes: 'Đối chiếu sổ phụ ngân hàng hàng ngày/tuần', deadline: '' },
+        { id: 8, category: 'Trong kỳ', name: 'Lập và theo dõi bảng chấm công, tính lương và các khoản trích theo lương', status: 'not-started', notes: '', deadline: '' },
+        { id: 9, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tính và trích khấu hao tài sản cố định', status: 'not-started', notes: '', deadline: '' },
+        { id: 10, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Phân bổ chi phí trả trước (TK 242)', status: 'not-started', notes: '', deadline: '' },
+        { id: 11, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Trích trước chi phí (lương tháng 13, chi phí sửa chữa...)', status: 'not-started', notes: '', deadline: '' },
+        { id: 12, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Kiểm kê kho, đối chiếu số liệu và tính giá vốn hàng bán', status: 'not-started', notes: '', deadline: '' },
+        { id: 13, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tập hợp chi phí, tính giá thành sản phẩm (nếu có)', status: 'not-started', notes: '', deadline: '' },
+        { id: 14, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế GTGT và nộp (nếu theo tháng)', status: 'not-started', notes: 'Hạn cuối là ngày 20 của tháng sau', deadline: '' },
+        { id: 15, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế TNCN và nộp (nếu theo tháng)', status: 'not-started', notes: '', deadline: '' },
+        { id: 16, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tạm tính thuế TNDN và nộp (nếu có)', status: 'not-started', notes: '', deadline: '' },
+        { id: 17, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện các bút toán kết chuyển doanh thu, chi phí', status: 'not-started', notes: '', deadline: '' },
+        { id: 18, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Xác định kết quả kinh doanh (lãi/lỗ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 19, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối số phát sinh', status: 'not-started', notes: 'Kiểm tra tổng Nợ = tổng Có', deadline: '' },
+        { id: 20, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Báo cáo kết quả hoạt động kinh doanh (nội bộ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 21, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối kế toán (nội bộ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 22, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '', deadline: '' }
+    ];
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Cập nhật các lệnh gọi getElementById với ID mới
+        selectionModal = new bootstrap.Modal(document.getElementById('acc-checklist-selectionModal'));
+        mainAppModal = new bootstrap.Modal(document.getElementById('acc-checklist-mainAppModal'));
+        newAccountantModal = new bootstrap.Modal(document.getElementById('acc-checklist-newAccountantModal'));
+        addTaskModal = new bootstrap.Modal(document.getElementById('acc-checklist-addTaskModal'));
+        document.getElementById('acc-checklist-selectionModal').addEventListener('shown.bs.modal', loadAccountantList);
+    });
+
+    function setButtonLoading(button, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            button.dataset.originalText = button.innerHTML;
+            button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Đang xử lý...`;
+        } else {
+            button.disabled = false;
+            button.innerHTML = button.dataset.originalText;
+        }
+    }
+
+    async function loadAccountantList() {
+        // Cập nhật getElementById
+        const listDiv = document.getElementById('acc-checklist-accountantList');
+        listDiv.innerHTML = `<div class="text-center p-3"><div class="spinner-border text-primary"></div></div>`;
+        try {
+            const snapshot = await database.ref('checklists').once('value');
+            const data = snapshot.val();
+            listDiv.innerHTML = '';
+            if (data) {
+                Object.values(data).forEach(acc => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    // Thêm class acc-checklist-delete-btn cho nút xóa
+                    item.innerHTML = `
+                        <a href="#" class="text-decoration-none text-dark flex-grow-1" onclick="event.preventDefault(); loadChecklistFor('${acc.id}')">
+                            <strong>${acc.accountantName}</strong>
+                            <br><small class="text-muted">Ngày lập: ${acc.creationDate}</small>
+                        </a>
+                        <button class="btn btn-outline-danger btn-sm acc-checklist-delete-btn" onclick="confirmDeleteAccountant(this, '${acc.id}', '${acc.accountantName}')"><i class="bi bi-trash-fill"></i></button>`;
+                    listDiv.appendChild(item);
+                });
+            } else {
+                listDiv.innerHTML = '<p class="text-center text-muted p-3">Chưa có checklist nào.</p>';
+            }
+        } catch (error) {
+            console.error("Lỗi:", error);
+            listDiv.innerHTML = '<p class="text-center text-danger p-3">Lỗi kết nối CSDL.</p>';
+        }
+    }
+
+    function openNewAccountantModal() {
+        // Cập nhật getElementById
+        document.getElementById('acc-checklist-newAccountantNameInput').value = '';
+        newAccountantModal.show();
+    }
+
+    async function createNewChecklist() {
+        // Cập nhật getElementById
+        const nameInput = document.getElementById('acc-checklist-newAccountantNameInput');
+        const name = nameInput.value.trim();
+        const saveBtn = document.getElementById('acc-checklist-saveNewAccountantBtn');
+        if (!name) { alert('Vui lòng nhập tên.'); return; }
+        setButtonLoading(saveBtn, true);
+        try {
+            const accountantId = slugify(name);
+            const ref = database.ref('checklists/' + accountantId);
+            const snapshot = await ref.once('value');
+            if (snapshot.exists()) {
+                alert('Tên này đã tồn tại.');
+                return;
+            }
+            const newChecklist = {
+                id: accountantId, accountantName: name,
+                creationDate: new Date().toLocaleDateString('vi-VN'),
+                tasks: JSON.parse(JSON.stringify(initialTasks))
+            };
+            await ref.set(newChecklist);
+            newAccountantModal.hide();
+            loadChecklistFor(accountantId);
+        } catch (error) {
+            console.error("Lỗi:", error);
+            alert("Đã xảy ra lỗi khi tạo mới.");
+        } finally {
+            setButtonLoading(saveBtn, false);
+        }
+    }
+    
+    async function loadChecklistFor(accountantId) {
+        try {
+            const snapshot = await database.ref('checklists/' + accountantId).once('value');
+            currentChecklistData = snapshot.val();
+            if (currentChecklistData) {
+                currentAccountantId = accountantId;
+                // Cập nhật getElementById
+                document.getElementById('acc-checklist-mainAppModalLabel').innerHTML = `<i class="bi bi-person-fill"></i> Checklist của: <strong>${currentChecklistData.accountantName}</strong>`;
+                renderTasks(currentChecklistData.tasks);
+                selectionModal.hide();
+                mainAppModal.show();
+            } else {
+                alert('Không tìm thấy dữ liệu.');
+                loadAccountantList();
+            }
+        } catch (error) {
+            console.error("Lỗi:", error);
+            alert("Không thể tải dữ liệu.");
+        }
+    }
+
+    function confirmDeleteAccountant(button, id, name) {
+        if (confirm(`Bạn có chắc chắn muốn xóa checklist của "${name}" không?`)) {
+            deleteAccountant(button, id);
+        }
+    }
+
+    async function deleteAccountant(button, id) {
+        setButtonLoading(button, true);
+        try {
+            await database.ref('checklists/' + id).remove();
+            loadAccountantList();
+        } catch(error) {
+            console.error("Lỗi:", error);
+            alert("Xóa thất bại.");
+            setButtonLoading(button, false);
+        }
+    }
+
+    function backToSelection() {
+        mainAppModal.hide();
+        selectionModal.show();
+    }
+    
+    window.addTask = function() {
+        // Cập nhật getElementById
+        const name = document.getElementById('acc-checklist-taskName').value;
+        const category = document.getElementById('acc-checklist-taskCategory').value;
+        const deadline = document.getElementById('acc-checklist-taskDeadline').value;
+
+        if (name && category) {
+            const newId = currentChecklistData.tasks.length > 0 ? Math.max(...currentChecklistData.tasks.map(t => t.id)) + 1 : 1;
+            const newTask = {
+                id: newId, category: category, name: name,
+                status: 'not-started', notes: '', deadline: deadline
+            };
+            currentChecklistData.tasks.push(newTask);
+            saveTasks();
+            renderTasks(currentChecklistData.tasks);
+            
+            addTaskModal.hide();
+            // Cập nhật getElementById
+            document.getElementById('acc-checklist-addTaskForm').reset();
+        } else {
+            alert('Vui lòng nhập tên công việc và chọn phân loại.');
+        }
+    }
+
+    async function saveTasks() {
+        if (!currentAccountantId) return;
+        try {
+            await database.ref(`checklists/${currentAccountantId}/tasks`).set(currentChecklistData.tasks);
+        } catch (error) {
+            console.error("Lỗi khi lưu:", error);
+            alert("Lỗi: Không thể lưu thay đổi.");
+        }
+    }
+
+    function renderTasks(tasks) {
+        const now = new Date();
+        // Cập nhật getElementById
+        document.getElementById('acc-checklist-currentMonth').innerText = `KỲ BÁO CÁO: THÁNG ${now.getMonth() + 1} NĂM ${now.getFullYear()}`;
+        
+        // Cập nhật getElementById
+        const taskListDiv = document.getElementById('acc-checklist-taskList');
+        taskListDiv.innerHTML = '';
+        const categories = [...new Set(tasks.map(task => task.category))];
+        
+        categories.forEach(category => {
+            const card = document.createElement('div');
+            // Thêm class acc-checklist-task-card
+            card.className = 'card acc-checklist-task-card';
+            let iconClass = 'bi-journal-bookmark';
+            if (category.includes('Trong kỳ')) iconClass = 'bi-calendar3-week';
+            if (category.includes('Cuối kỳ')) iconClass = 'bi-file-earmark-zip';
+            card.innerHTML = `<div class="card-header"><i class="bi ${iconClass}"></i> ${category}</div>`;
+            
+            const table = document.createElement('table');
+            table.className = 'table table-hover table-striped mb-0';
+            table.innerHTML = `<thead class="table-light"><tr><th style="width: 5%;">#</th><th style="width: 40%;">Nội dung công việc</th><th style="width: 15%;">Trạng thái</th><th style="width: 15%;">Hạn chót</th><th style="width: 25%;">Ghi chú</th></tr></thead>`;
+            const tbody = document.createElement('tbody');
+            tasks.filter(t => t.category === category).forEach(task => {
+                const tr = document.createElement('tr');
+                // Thêm class acc-checklist-status-select và acc-checklist-notes-input
+                tr.innerHTML = `
+                    <td>${task.id}</td><td>${task.name}</td>
+                    <td><select class="form-select form-select-sm acc-checklist-status-select" onchange="updateStatus(${task.id}, this.value)"><option value="not-started">Chưa làm</option><option value="in-progress">Đang làm</option><option value="completed">Hoàn thành</option></select></td>
+                    <td><input type="date" class="form-control form-control-sm" value="${task.deadline || ''}" onchange="updateDeadline(${task.id}, this.value)"></td>
+                    <td><textarea class="form-control form-control-sm acc-checklist-notes-input" rows="1" onchange="updateNotes(${task.id}, this.value)">${task.notes || ''}</textarea></td>`;
+                const select = tr.querySelector('.acc-checklist-status-select');
+                select.value = task.status;
+                updateSelectColor(select, task.status);
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            card.appendChild(table);
+            taskListDiv.appendChild(card);
+        });
+        updateDashboard();
+    }
+
+    function updateStatus(taskId, status) { const task = currentChecklistData.tasks.find(t => t.id === taskId); if (task) { task.status = status; updateSelectColor(event.target, status); updateDashboard(); saveTasks(); } }
+    function updateNotes(taskId, notes) { const task = currentChecklistData.tasks.find(t => t.id === taskId); if(task){task.notes = notes; saveTasks();} }
+    function updateDeadline(taskId, deadline) { const task = currentChecklistData.tasks.find(t => t.id === taskId); if(task){task.deadline = deadline; saveTasks();} }
+
+    function updateDashboard() {
+        if (!currentChecklistData) return;
+        const tasks = currentChecklistData.tasks;
+        const total = tasks.length, completed = tasks.filter(t => t.status === 'completed').length;
+        const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+        // Cập nhật getElementById
+        document.getElementById('acc-checklist-totalTasks').innerText = total;
+        document.getElementById('acc-checklist-completedTasks').innerText = completed;
+        document.getElementById('acc-checklist-inProgressTasks').innerText = inProgress;
+        document.getElementById('acc-checklist-notStartedTasks').innerText = total - completed - inProgress;
+        const progressBar = document.getElementById('acc-checklist-totalProgressBar');
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        progressBar.style.width = `${percentage}%`;
+        progressBar.innerText = `${percentage}%`;
+    }
+    
+    function updateSelectColor(select, status) {
+        // Cập nhật các class tùy chỉnh với tiền tố
+        select.className = 'form-select form-select-sm acc-checklist-status-select';
+        if (status === 'not-started') select.classList.add('acc-checklist-status-not-started');
+        else if (status === 'in-progress') select.classList.add('acc-checklist-status-in-progress');
+        else if (status === 'completed') select.classList.add('acc-checklist-status-completed');
+    }
+
+    // Hàm slugify không cần thay đổi
+    function slugify(str) {
+        str = str.replace(/^\s+|\s+$/g, '').toLowerCase();
+        const from = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ·/_,:;";
+        const to   = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd------";
+        for (let i = 0, l = from.length; i < l; i++) str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+        return str.replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+    }
+
+    // Tạm thời vô hiệu hóa hàm generateReport vì không có nút nào gọi nó trong HTML
+    // window.generateReport = function() { ... };
+    
+    // Cập nhật các lệnh gọi getElementById trong các hàm toàn cục
+    window.copyReport = function() { navigator.clipboard.writeText(document.getElementById('acc-checklist-reportContent').innerText).then(() => alert('Đã sao chép báo cáo!')); };
+    
+    // Tạo báo cáo khi modal được hiển thị
+    document.getElementById('acc-checklist-reportModal').addEventListener('show.bs.modal', function () {
+        if (!currentChecklistData) return;
+        const { accountantName, creationDate, tasks } = currentChecklistData;
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.status === 'completed').length;
+        const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+        const notStarted = total - completed - inProgress;
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        
+        let reportText = `BÁO CÁO TIẾN ĐỘ CÔNG VIỆC KẾ TOÁN\n`;
+        reportText += `=====================================\n`;
+        reportText += `● Kế toán: ${accountantName}\n`;
+        reportText += `● Ngày báo cáo: ${new Date().toLocaleDateString('vi-VN')}\n`;
+        reportText += `\n--- TỔNG QUAN ---\n`;
+        reportText += `● Hoàn thành: ${completed}/${total} công việc (${percentage}%)\n`;
+        reportText += `● Đang làm: ${inProgress} công việc\n`;
+        reportText += `● Chưa làm: ${notStarted} công việc\n`;
+        
+        const unfinishedTasks = tasks.filter(t => t.status !== 'completed');
+        if (unfinishedTasks.length > 0) {
+            reportText += `\n--- CHI TIẾT CÁC VIỆC CHƯA HOÀN THÀNH ---\n`;
+            unfinishedTasks.forEach(task => { 
+                const statusLabel = task.status === 'in-progress' ? 'Đang làm' : 'Chưa làm';
+                reportText += `[${statusLabel}] - ${task.name}\n`; 
+                if (task.notes) {
+                    reportText += `  └ Ghi chú: ${task.notes}\n`;
+                }
+            });
+        } else {
+             reportText += `\n>>> Xin chúc mừng! Tất cả công việc đã được hoàn thành.\n`;
+        }
+        
+        document.getElementById('acc-checklist-reportContent').innerText = reportText;
+    });
+
+    </script>
+</body>
+</html>
