@@ -158,6 +158,9 @@
                                         <div class="d-grid">
                                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#acc-checklist-reportModal"><i class="bi bi-file-earmark-text"></i> Tạo Báo Cáo Nhanh</button>
                                         </div>
+                                        <div class="d-grid mt-3">
+                                            <button class="btn btn-warning" onclick="confirmRefreshChecklist()"><i class="bi bi-arrow-clockwise"></i> Làm mới kỳ mới</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -256,15 +259,18 @@
         { id: 11, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Trích trước chi phí (lương tháng 13, chi phí sửa chữa...)', status: 'not-started', notes: '', deadline: '' },
         { id: 12, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Kiểm kê kho, đối chiếu số liệu và tính giá vốn hàng bán', status: 'not-started', notes: '', deadline: '' },
         { id: 13, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tập hợp chi phí, tính giá thành sản phẩm (nếu có)', status: 'not-started', notes: '', deadline: '' },
-        { id: 14, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế GTGT và nộp (nếu theo tháng)', status: 'not-started', notes: 'Hạn cuối là ngày 20 của tháng sau', deadline: '' },
-        { id: 15, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế TNCN và nộp (nếu theo tháng)', status: 'not-started', notes: '', deadline: '' },
-        { id: 16, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tạm tính thuế TNDN và nộp (nếu có)', status: 'not-started', notes: '', deadline: '' },
-        { id: 17, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện các bút toán kết chuyển doanh thu, chi phí', status: 'not-started', notes: '', deadline: '' },
-        { id: 18, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Xác định kết quả kinh doanh (lãi/lỗ)', status: 'not-started', notes: '', deadline: '' },
-        { id: 19, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối số phát sinh', status: 'not-started', notes: 'Kiểm tra tổng Nợ = tổng Có', deadline: '' },
-        { id: 20, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Báo cáo kết quả hoạt động kinh doanh (nội bộ)', status: 'not-started', notes: '', deadline: '' },
-        { id: 21, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối kế toán (nội bộ)', status: 'not-started', notes: '', deadline: '' },
-        { id: 22, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '', deadline: '' }
+        { id: 14, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế GTGT và nộp (nếu theo tháng/quý)', status: 'not-started', notes: 'Hạn cuối là ngày 20 của tháng sau', deadline: '' },
+        { id: 15, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế TNCN và nộp (nếu theo tháng/quý)', status: 'not-started', notes: '', deadline: '' },
+        { id: 16, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập hạch toán BHXY-BHYT-BHTN  phát sinh - xem lại kỹ', status: 'not-started', notes: '', deadline: '' },
+       
+	   { id: 17, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tạm tính thuế TNDN và nộp (nếu có)', status: 'not-started', notes: '', deadline: '' },
+        { id: 18, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện các bút toán kết chuyển doanh thu, chi phí', status: 'not-started', notes: '', deadline: '' },
+        { id: 19, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Xác định kết quả kinh doanh (lãi/lỗ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 20, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối số phát sinh', status: 'not-started', notes: 'Kiểm tra tổng Nợ = tổng Có', deadline: '' },
+        { id: 21, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Báo cáo kết quả hoạt động kinh doanh (nội bộ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 22, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối kế toán (nội bộ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 23, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '', deadline: '' }
+		
     ];
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -512,9 +518,6 @@
         return str.replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
     }
 
-    // Tạm thời vô hiệu hóa hàm generateReport vì không có nút nào gọi nó trong HTML
-    // window.generateReport = function() { ... };
-    
     // Cập nhật các lệnh gọi getElementById trong các hàm toàn cục
     window.copyReport = function() { navigator.clipboard.writeText(document.getElementById('acc-checklist-reportContent').innerText).then(() => alert('Đã sao chép báo cáo!')); };
     
@@ -537,22 +540,73 @@
         reportText += `● Đang làm: ${inProgress} công việc\n`;
         reportText += `● Chưa làm: ${notStarted} công việc\n`;
         
-        const unfinishedTasks = tasks.filter(t => t.status !== 'completed');
-        if (unfinishedTasks.length > 0) {
-            reportText += `\n--- CHI TIẾT CÁC VIỆC CHƯA HOÀN THÀNH ---\n`;
-            unfinishedTasks.forEach(task => { 
-                const statusLabel = task.status === 'in-progress' ? 'Đang làm' : 'Chưa làm';
-                reportText += `[${statusLabel}] - ${task.name}\n`; 
-                if (task.notes) {
-                    reportText += `  └ Ghi chú: ${task.notes}\n`;
-                }
-            });
-        } else {
-             reportText += `\n>>> Xin chúc mừng! Tất cả công việc đã được hoàn thành.\n`;
-        }
+        reportText += `\n--- CHI TIẾT TẤT CẢ CÔNG VIỆC ---\n`;
+        tasks.forEach(task => { 
+            let statusLabel;
+            if (task.status === 'completed') {
+                statusLabel = 'Hoàn thành';
+            } else if (task.status === 'in-progress') {
+                statusLabel = 'Đang làm';
+            } else {
+                statusLabel = 'Chưa làm';
+            }
+
+            reportText += `[${statusLabel}] - ${task.name}\n`; 
+            if (task.notes) {
+                reportText += `  └ Ghi chú: ${task.notes}\n`;
+            }
+        });
         
         document.getElementById('acc-checklist-reportContent').innerText = reportText;
     });
+
+    // --- CÁC HÀM MỚI ĐƯỢC THÊM VÀO ĐỂ LÀM MỚI CHECKLIST ---
+
+    function confirmRefreshChecklist() {
+        if (confirm("Bạn có chắc chắn muốn làm mới checklist cho kỳ mới không? Thao tác này sẽ đặt lại tất cả trạng thái công việc về 'Chưa làm' và xóa ghi chú/hạn chót.")) {
+            refreshChecklist();
+        }
+    }
+
+    async function refreshChecklist() {
+        if (!currentAccountantId) {
+            alert("Vui lòng chọn một checklist để làm mới.");
+            return;
+        }
+
+        try {
+            const loadingBtn = document.querySelector('.btn-warning');
+            setButtonLoading(loadingBtn, true);
+
+            // Lấy dữ liệu checklist hiện tại
+            const snapshot = await database.ref(`checklists/${currentAccountantId}`).once('value');
+            const currentData = snapshot.val();
+            
+            if (currentData) {
+                // Lặp qua tất cả công việc và đặt lại trạng thái về 'not-started'
+                const newTasks = currentData.tasks.map(task => {
+                    return { ...task, status: 'not-started', notes: '', deadline: '' };
+                });
+
+                // Cập nhật lại dữ liệu trên Firebase
+                await database.ref(`checklists/${currentAccountantId}/tasks`).set(newTasks);
+                
+                // Cập nhật lại giao diện
+                currentChecklistData.tasks = newTasks;
+                renderTasks(currentChecklistData.tasks);
+                alert("Đã làm mới checklist thành công cho kỳ mới!");
+            } else {
+                alert("Không tìm thấy dữ liệu để làm mới.");
+            }
+
+        } catch (error) {
+            console.error("Lỗi khi làm mới:", error);
+            alert("Đã xảy ra lỗi khi làm mới checklist.");
+        } finally {
+            const loadingBtn = document.querySelector('.btn-warning');
+            setButtonLoading(loadingBtn, false);
+        }
+    }
 
     </script>
 </body>
