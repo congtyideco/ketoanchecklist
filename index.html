@@ -81,6 +81,16 @@
         .shadow {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
         }
+
+        .acc-checklist-part-header {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #004a99;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #004a99;
+        }
     </style>
 </head>
 <body>
@@ -201,6 +211,13 @@
                     <form id="acc-checklist-addTaskForm">
                         <div class="mb-3"><label for="acc-checklist-taskName" class="form-label">Tên công việc</label><input type="text" class="form-control" id="acc-checklist-taskName" required></div>
                         <div class="mb-3">
+                            <label for="acc-checklist-taskPart" class="form-label">Phòng ban/Phần</label>
+                            <select class="form-select" id="acc-checklist-taskPart" required>
+                                <option value="Kế toán Tổng hợp">Kế toán Tổng hợp</option>
+                                <option value="Kế toán Bán hàng, Kho & Công nợ Phải thu">Kế toán Bán hàng, Kho & Công nợ Phải thu</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="acc-checklist-taskCategory" class="form-label">Phân loại</label>
                             <select class="form-select" id="acc-checklist-taskCategory" required>
                                 <option value="Đầu kỳ">Công việc đầu kỳ</option>
@@ -244,37 +261,52 @@
     let currentChecklistData = null;
     let selectionModal, mainAppModal, newAccountantModal, addTaskModal;
 
-    // Dữ liệu công việc ban đầu không thay đổi
+    // Dữ liệu công việc ban đầu được cập nhật với thuộc tính 'part'
     const initialTasks = [
-        { id: 1, category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
-        { id: 2, category: 'Đầu kỳ', name: 'Kiểm tra số dư đầu kỳ của các tài khoản trên bảng cân đối', status: 'not-started', notes: '', deadline: '' },
-        { id: 3, category: 'Trong kỳ', name: 'Hạch toán và kiểm tra các nghiệp vụ mua hàng, hóa đơn đầu vào', status: 'not-started', notes: 'Đối chiếu với hợp đồng, biên bản giao hàng...', deadline: '' },
-        { id: 4, category: 'Trong kỳ', name: 'Hạch toán và kiểm tra các nghiệp vụ bán hàng, hóa đơn đầu ra', status: 'not-started', notes: 'Kiểm tra chính sách chiết khấu, công nợ', deadline: '' },
-        { id: 5, category: 'Trong kỳ', name: 'Theo dõi, đối chiếu công nợ phải thu (TK 131)', status: 'not-started', notes: '', deadline: '' },
-        { id: 6, category: 'Trong kỳ', name: 'Theo dõi, đối chiếu công nợ phải trả (TK 331)', status: 'not-started', notes: '', deadline: '' },
-        { id: 7, category: 'Trong kỳ', name: 'Hạch toán các nghiệp vụ liên quan đến tiền mặt, tiền gửi ngân hàng', status: 'not-started', notes: 'Đối chiếu sổ phụ ngân hàng hàng ngày/tuần', deadline: '' },
-        { id: 8, category: 'Trong kỳ', name: 'Lập và theo dõi bảng chấm công, tính lương và các khoản trích theo lương', status: 'not-started', notes: '', deadline: '' },
-        { id: 9, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tính và trích khấu hao tài sản cố định', status: 'not-started', notes: '', deadline: '' },
-        { id: 10, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Phân bổ chi phí trả trước (TK 242)', status: 'not-started', notes: '', deadline: '' },
-        { id: 11, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Trích trước chi phí (lương tháng 13, chi phí sửa chữa...)', status: 'not-started', notes: '', deadline: '' },
-        { id: 12, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Kiểm kê kho, đối chiếu số liệu và tính giá vốn hàng bán', status: 'not-started', notes: '', deadline: '' },
-        { id: 13, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tập hợp chi phí, tính giá thành sản phẩm (nếu có)', status: 'not-started', notes: '', deadline: '' },
-        { id: 14, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế GTGT và nộp (nếu theo tháng/quý)', status: 'not-started', notes: 'Hạn cuối là ngày 20 của tháng sau', deadline: '' },
-        { id: 15, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế TNCN và nộp (nếu theo tháng/quý)', status: 'not-started', notes: '', deadline: '' },
-        { id: 16, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập hạch toán BHXY-BHYT-BHTN  phát sinh - xem lại kỹ', status: 'not-started', notes: '', deadline: '' },
-       
-	   { id: 17, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tạm tính thuế TNDN và nộp (nếu có)', status: 'not-started', notes: '', deadline: '' },
-        { id: 18, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện các bút toán kết chuyển doanh thu, chi phí', status: 'not-started', notes: '', deadline: '' },
-        { id: 19, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Xác định kết quả kinh doanh (lãi/lỗ)', status: 'not-started', notes: '', deadline: '' },
-        { id: 20, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối số phát sinh', status: 'not-started', notes: 'Kiểm tra tổng Nợ = tổng Có', deadline: '' },
-        { id: 21, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Báo cáo kết quả hoạt động kinh doanh (nội bộ)', status: 'not-started', notes: '', deadline: '' },
-        { id: 22, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối kế toán (nội bộ)', status: 'not-started', notes: '', deadline: '' },
-        { id: 23, category: 'Cuối kỳ - Thuế & Báo cáo', name: 'In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '', deadline: '' }
-		
-    ];
+        // ===== PHẦN 1: KẾ TOÁN TỔNG HỢP =====
+        { id: 1, part: 'Kế toán Tổng hợp', category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
+        { id: 2, part: 'Kế toán Tổng hợp', category: 'Đầu kỳ', name: 'Kiểm tra số dư đầu kỳ của các tài khoản trên bảng cân đối', status: 'not-started', notes: '', deadline: '' },
+        { id: 3, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Hạch toán và kiểm tra các nghiệp vụ mua hàng, hóa đơn đầu vào', status: 'not-started', notes: 'Đối chiếu với hợp đồng, biên bản giao hàng...', deadline: '' },
+        { id: 4, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Hạch toán và kiểm tra các nghiệp vụ bán hàng, hóa đơn đầu ra', status: 'not-started', notes: 'Kiểm tra chính sách chiết khấu, công nợ', deadline: '' },
+        { id: 5, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Theo dõi, đối chiếu công nợ phải thu (TK 131)', status: 'not-started', notes: '', deadline: '' },
+        { id: 6, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Theo dõi, đối chiếu công nợ phải trả (TK 331)', status: 'not-started', notes: '', deadline: '' },
+        { id: 7, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Hạch toán các nghiệp vụ liên quan đến tiền mặt, tiền gửi ngân hàng', status: 'not-started', notes: 'Đối chiếu sổ phụ ngân hàng hàng ngày/tuần', deadline: '' },
+        { id: 8, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Lập và theo dõi bảng chấm công, tính lương và các khoản trích theo lương', status: 'not-started', notes: '', deadline: '' },
+        { id: 9, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tính và trích khấu hao tài sản cố định', status: 'not-started', notes: '', deadline: '' },
+        { id: 10, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Phân bổ chi phí trả trước (TK 242)', status: 'not-started', notes: '', deadline: '' },
+        { id: 11, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Trích trước chi phí (lương tháng 13, chi phí sửa chữa...)', status: 'not-started', notes: '', deadline: '' },
+        { id: 12, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Kiểm kê kho, đối chiếu số liệu và tính giá vốn hàng bán', status: 'not-started', notes: '', deadline: '' },
+        { id: 13, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tập hợp chi phí, tính giá thành sản phẩm (nếu có)', status: 'not-started', notes: '', deadline: '' },
+        { id: 14, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế GTGT và nộp (nếu theo tháng/quý)', status: 'not-started', notes: 'Hạn cuối là ngày 20 của tháng sau', deadline: '' },
+        { id: 15, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế TNCN và nộp (nếu theo tháng/quý)', status: 'not-started', notes: '', deadline: '' },
+        { id: 16, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập hạch toán BHXH-BHYT-BHTN phát sinh - xem lại kỹ', status: 'not-started', notes: '', deadline: '' },
+        { id: 17, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tạm tính thuế TNDN và nộp (nếu có)', status: 'not-started', notes: '', deadline: '' },
+        { id: 18, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện các bút toán kết chuyển doanh thu, chi phí', status: 'not-started', notes: '', deadline: '' },
+        { id: 19, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Xác định kết quả kinh doanh (lãi/lỗ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 20, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối số phát sinh', status: 'not-started', notes: 'Kiểm tra tổng Nợ = tổng Có', deadline: '' },
+        { id: 21, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Báo cáo kết quả hoạt động kinh doanh (nội bộ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 22, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối kế toán (nội bộ)', status: 'not-started', notes: '', deadline: '' },
+        { id: 23, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '', deadline: '' },
+
+        // ===== PHẦN 2: KẾ TOÁN BÁN HÀNG, KHO, CÔNG NỢ PHẢI THU =====
+        { id: 1, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Bán hàng] Đối chiếu, gửi biên bản xác nhận công nợ cho khách hàng', status: 'not-started', notes: '', deadline: '' },
+        { id: 2, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Kho] Đối chiếu số liệu tồn kho giữa sổ sách và thực tế', status: 'not-started', notes: '', deadline: '' },
+        { id: 3, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Công nợ] Lập báo cáo công nợ theo tuổi nợ, đôn đốc nợ quá hạn từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
+        { id: 4, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Lập và xuất hóa đơn bán hàng hàng ngày, hạch toán doanh thu', status: 'not-started', notes: '', deadline: '' },
+        { id: 5, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Xử lý các khoản giảm trừ: chiết khấu, hàng bán bị trả lại', status: 'not-started', notes: '', deadline: '' },
+        { id: 6, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Lập phiếu nhập kho, xuất kho khi có phát sinh, hạch toán vào phần mềm', status: 'not-started', notes: '', deadline: '' },
+        { id: 7, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Giám sát tình hình nhập-xuất-tồn kho hàng ngày', status: 'not-started', notes: '', deadline: '' },
+        { id: 8, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Theo dõi, cập nhật các khoản phải thu phát sinh trong ngày', status: 'not-started', notes: '', deadline: '' },
+        { id: 9, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Gửi thông báo nhắc nợ các khoản sắp đến hạn', status: 'not-started', notes: '', deadline: '' },
+        { id: 10, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Bán hàng] Tổng hợp hóa đơn, lập báo cáo bán hàng, báo cáo doanh thu', status: 'not-started', notes: '', deadline: '' },
+        { id: 11, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Tham gia kiểm kê kho cuối tháng', status: 'not-started', notes: '', deadline: '' },
+        { id: 12, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Lập báo cáo Nhập - Xuất - Tồn kho tháng', status: 'not-started', notes: 'Đối chiếu với kế toán tổng hợp', deadline: '' },
+        { id: 13, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Đối chiếu công nợ phải thu với tất cả khách hàng cuối tháng', status: 'not-started', notes: '', deadline: '' },
+        { id: 14, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Lập báo cáo tổng hợp công nợ phải thu, phân tích tuổi nợ', status: 'not-started', notes: '', deadline: '' },
+    {id: 15, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Báo cáo] Kết chuyển báo cáo tổng hợp cho kê toán tổng hợp/ kết toán trưởng', status: 'not-started', notes: '', deadline: '' }
+	];
     
     document.addEventListener('DOMContentLoaded', () => {
-        // Cập nhật các lệnh gọi getElementById với ID mới
         selectionModal = new bootstrap.Modal(document.getElementById('acc-checklist-selectionModal'));
         mainAppModal = new bootstrap.Modal(document.getElementById('acc-checklist-mainAppModal'));
         newAccountantModal = new bootstrap.Modal(document.getElementById('acc-checklist-newAccountantModal'));
@@ -294,7 +326,6 @@
     }
 
     async function loadAccountantList() {
-        // Cập nhật getElementById
         const listDiv = document.getElementById('acc-checklist-accountantList');
         listDiv.innerHTML = `<div class="text-center p-3"><div class="spinner-border text-primary"></div></div>`;
         try {
@@ -305,7 +336,6 @@
                 Object.values(data).forEach(acc => {
                     const item = document.createElement('div');
                     item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    // Thêm class acc-checklist-delete-btn cho nút xóa
                     item.innerHTML = `
                         <a href="#" class="text-decoration-none text-dark flex-grow-1" onclick="event.preventDefault(); loadChecklistFor('${acc.id}')">
                             <strong>${acc.accountantName}</strong>
@@ -324,13 +354,11 @@
     }
 
     function openNewAccountantModal() {
-        // Cập nhật getElementById
         document.getElementById('acc-checklist-newAccountantNameInput').value = '';
         newAccountantModal.show();
     }
 
     async function createNewChecklist() {
-        // Cập nhật getElementById
         const nameInput = document.getElementById('acc-checklist-newAccountantNameInput');
         const name = nameInput.value.trim();
         const saveBtn = document.getElementById('acc-checklist-saveNewAccountantBtn');
@@ -366,7 +394,6 @@
             currentChecklistData = snapshot.val();
             if (currentChecklistData) {
                 currentAccountantId = accountantId;
-                // Cập nhật getElementById
                 document.getElementById('acc-checklist-mainAppModalLabel').innerHTML = `<i class="bi bi-person-fill"></i> Checklist của: <strong>${currentChecklistData.accountantName}</strong>`;
                 renderTasks(currentChecklistData.tasks);
                 selectionModal.hide();
@@ -405,15 +432,15 @@
     }
     
     window.addTask = function() {
-        // Cập nhật getElementById
         const name = document.getElementById('acc-checklist-taskName').value;
+        const part = document.getElementById('acc-checklist-taskPart').value;
         const category = document.getElementById('acc-checklist-taskCategory').value;
         const deadline = document.getElementById('acc-checklist-taskDeadline').value;
 
-        if (name && category) {
+        if (name && part && category) {
             const newId = currentChecklistData.tasks.length > 0 ? Math.max(...currentChecklistData.tasks.map(t => t.id)) + 1 : 1;
             const newTask = {
-                id: newId, category: category, name: name,
+                id: newId, part: part, category: category, name: name,
                 status: 'not-started', notes: '', deadline: deadline
             };
             currentChecklistData.tasks.push(newTask);
@@ -421,10 +448,9 @@
             renderTasks(currentChecklistData.tasks);
             
             addTaskModal.hide();
-            // Cập nhật getElementById
             document.getElementById('acc-checklist-addTaskForm').reset();
         } else {
-            alert('Vui lòng nhập tên công việc và chọn phân loại.');
+            alert('Vui lòng nhập đầy đủ thông tin công việc.');
         }
     }
 
@@ -440,43 +466,50 @@
 
     function renderTasks(tasks) {
         const now = new Date();
-        // Cập nhật getElementById
         document.getElementById('acc-checklist-currentMonth').innerText = `KỲ BÁO CÁO: THÁNG ${now.getMonth() + 1} NĂM ${now.getFullYear()}`;
         
-        // Cập nhật getElementById
         const taskListDiv = document.getElementById('acc-checklist-taskList');
         taskListDiv.innerHTML = '';
-        const categories = [...new Set(tasks.map(task => task.category))];
-        
-        categories.forEach(category => {
-            const card = document.createElement('div');
-            // Thêm class acc-checklist-task-card
-            card.className = 'card acc-checklist-task-card';
-            let iconClass = 'bi-journal-bookmark';
-            if (category.includes('Trong kỳ')) iconClass = 'bi-calendar3-week';
-            if (category.includes('Cuối kỳ')) iconClass = 'bi-file-earmark-zip';
-            card.innerHTML = `<div class="card-header"><i class="bi ${iconClass}"></i> ${category}</div>`;
+        const parts = [...new Set(tasks.map(task => task.part))];
+
+        parts.forEach(part => {
+            const partHeader = document.createElement('h2');
+            partHeader.className = 'acc-checklist-part-header';
+            partHeader.innerHTML = `<i class="bi bi-collection-fill"></i> ${part}`;
+            taskListDiv.appendChild(partHeader);
+
+            const tasksInPart = tasks.filter(t => t.part === part);
+            const categories = [...new Set(tasksInPart.map(task => task.category))];
             
-            const table = document.createElement('table');
-            table.className = 'table table-hover table-striped mb-0';
-            table.innerHTML = `<thead class="table-light"><tr><th style="width: 5%;">#</th><th style="width: 40%;">Nội dung công việc</th><th style="width: 15%;">Trạng thái</th><th style="width: 15%;">Hạn chót</th><th style="width: 25%;">Ghi chú</th></tr></thead>`;
-            const tbody = document.createElement('tbody');
-            tasks.filter(t => t.category === category).forEach(task => {
-                const tr = document.createElement('tr');
-                // Thêm class acc-checklist-status-select và acc-checklist-notes-input
-                tr.innerHTML = `
-                    <td>${task.id}</td><td>${task.name}</td>
-                    <td><select class="form-select form-select-sm acc-checklist-status-select" onchange="updateStatus(${task.id}, this.value)"><option value="not-started">Chưa làm</option><option value="in-progress">Đang làm</option><option value="completed">Hoàn thành</option></select></td>
-                    <td><input type="date" class="form-control form-control-sm" value="${task.deadline || ''}" onchange="updateDeadline(${task.id}, this.value)"></td>
-                    <td><textarea class="form-control form-control-sm acc-checklist-notes-input" rows="1" onchange="updateNotes(${task.id}, this.value)">${task.notes || ''}</textarea></td>`;
-                const select = tr.querySelector('.acc-checklist-status-select');
-                select.value = task.status;
-                updateSelectColor(select, task.status);
-                tbody.appendChild(tr);
+            categories.forEach(category => {
+                const card = document.createElement('div');
+                card.className = 'card acc-checklist-task-card';
+                let iconClass = 'bi-journal-bookmark';
+                if (category.includes('Trong kỳ')) iconClass = 'bi-calendar3-week';
+                if (category.includes('Cuối kỳ')) iconClass = 'bi-file-earmark-zip';
+                card.innerHTML = `<div class="card-header"><i class="bi ${iconClass}"></i> ${category}</div>`;
+                
+                const table = document.createElement('table');
+                table.className = 'table table-hover table-striped mb-0';
+                table.innerHTML = `<thead class="table-light"><tr><th style="width: 5%;">#</th><th style="width: 40%;">Nội dung công việc</th><th style="width: 15%;">Trạng thái</th><th style="width: 15%;">Hạn chót</th><th style="width: 25%;">Ghi chú</th></tr></thead>`;
+                const tbody = document.createElement('tbody');
+                
+                tasksInPart.filter(t => t.category === category).forEach(task => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${task.id}</td><td>${task.name}</td>
+                        <td><select class="form-select form-select-sm acc-checklist-status-select" onchange="updateStatus(${task.id}, this.value)"><option value="not-started">Chưa làm</option><option value="in-progress">Đang làm</option><option value="completed">Hoàn thành</option></select></td>
+                        <td><input type="date" class="form-control form-control-sm" value="${task.deadline || ''}" onchange="updateDeadline(${task.id}, this.value)"></td>
+                        <td><textarea class="form-control form-control-sm acc-checklist-notes-input" rows="1" onchange="updateNotes(${task.id}, this.value)">${task.notes || ''}</textarea></td>`;
+                    const select = tr.querySelector('.acc-checklist-status-select');
+                    select.value = task.status;
+                    updateSelectColor(select, task.status);
+                    tbody.appendChild(tr);
+                });
+                table.appendChild(tbody);
+                card.appendChild(table);
+                taskListDiv.appendChild(card);
             });
-            table.appendChild(tbody);
-            card.appendChild(table);
-            taskListDiv.appendChild(card);
         });
         updateDashboard();
     }
@@ -490,7 +523,6 @@
         const tasks = currentChecklistData.tasks;
         const total = tasks.length, completed = tasks.filter(t => t.status === 'completed').length;
         const inProgress = tasks.filter(t => t.status === 'in-progress').length;
-        // Cập nhật getElementById
         document.getElementById('acc-checklist-totalTasks').innerText = total;
         document.getElementById('acc-checklist-completedTasks').innerText = completed;
         document.getElementById('acc-checklist-inProgressTasks').innerText = inProgress;
@@ -502,14 +534,12 @@
     }
     
     function updateSelectColor(select, status) {
-        // Cập nhật các class tùy chỉnh với tiền tố
         select.className = 'form-select form-select-sm acc-checklist-status-select';
         if (status === 'not-started') select.classList.add('acc-checklist-status-not-started');
         else if (status === 'in-progress') select.classList.add('acc-checklist-status-in-progress');
         else if (status === 'completed') select.classList.add('acc-checklist-status-completed');
     }
 
-    // Hàm slugify không cần thay đổi
     function slugify(str) {
         str = str.replace(/^\s+|\s+$/g, '').toLowerCase();
         const from = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ·/_,:;";
@@ -518,13 +548,11 @@
         return str.replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
     }
 
-    // Cập nhật các lệnh gọi getElementById trong các hàm toàn cục
     window.copyReport = function() { navigator.clipboard.writeText(document.getElementById('acc-checklist-reportContent').innerText).then(() => alert('Đã sao chép báo cáo!')); };
     
-    // Tạo báo cáo khi modal được hiển thị
     document.getElementById('acc-checklist-reportModal').addEventListener('show.bs.modal', function () {
         if (!currentChecklistData) return;
-        const { accountantName, creationDate, tasks } = currentChecklistData;
+        const { accountantName, tasks } = currentChecklistData;
         const total = tasks.length;
         const completed = tasks.filter(t => t.status === 'completed').length;
         const inProgress = tasks.filter(t => t.status === 'in-progress').length;
@@ -540,27 +568,25 @@
         reportText += `● Đang làm: ${inProgress} công việc\n`;
         reportText += `● Chưa làm: ${notStarted} công việc\n`;
         
-        reportText += `\n--- CHI TIẾT TẤT CẢ CÔNG VIỆC ---\n`;
-        tasks.forEach(task => { 
-            let statusLabel;
-            if (task.status === 'completed') {
-                statusLabel = 'Hoàn thành';
-            } else if (task.status === 'in-progress') {
-                statusLabel = 'Đang làm';
-            } else {
-                statusLabel = 'Chưa làm';
-            }
+        const parts = [...new Set(tasks.map(task => task.part))];
 
-            reportText += `[${statusLabel}] - ${task.name}\n`; 
-            if (task.notes) {
-                reportText += `  └ Ghi chú: ${task.notes}\n`;
-            }
+        parts.forEach(part => {
+            reportText += `\n--- CHI TIẾT PHẦN: ${part.toUpperCase()} ---\n`;
+            const tasksInPart = tasks.filter(t => t.part === part);
+            tasksInPart.forEach(task => { 
+                let statusLabel = 'Chưa làm';
+                if (task.status === 'completed') statusLabel = 'Hoàn thành';
+                else if (task.status === 'in-progress') statusLabel = 'Đang làm';
+                
+                reportText += `[${statusLabel}] - ${task.name}\n`; 
+                if (task.notes) {
+                    reportText += `  └ Ghi chú: ${task.notes}\n`;
+                }
+            });
         });
         
         document.getElementById('acc-checklist-reportContent').innerText = reportText;
     });
-
-    // --- CÁC HÀM MỚI ĐƯỢC THÊM VÀO ĐỂ LÀM MỚI CHECKLIST ---
 
     function confirmRefreshChecklist() {
         if (confirm("Bạn có chắc chắn muốn làm mới checklist cho kỳ mới không? Thao tác này sẽ đặt lại tất cả trạng thái công việc về 'Chưa làm' và xóa ghi chú/hạn chót.")) {
@@ -574,24 +600,16 @@
             return;
         }
 
+        const loadingBtn = document.querySelector('.btn-warning');
         try {
-            const loadingBtn = document.querySelector('.btn-warning');
             setButtonLoading(loadingBtn, true);
 
-            // Lấy dữ liệu checklist hiện tại
             const snapshot = await database.ref(`checklists/${currentAccountantId}`).once('value');
             const currentData = snapshot.val();
             
             if (currentData) {
-                // Lặp qua tất cả công việc và đặt lại trạng thái về 'not-started'
-                const newTasks = currentData.tasks.map(task => {
-                    return { ...task, status: 'not-started', notes: '', deadline: '' };
-                });
-
-                // Cập nhật lại dữ liệu trên Firebase
+                const newTasks = currentData.tasks.map(task => ({ ...task, status: 'not-started', notes: '', deadline: '' }));
                 await database.ref(`checklists/${currentAccountantId}/tasks`).set(newTasks);
-                
-                // Cập nhật lại giao diện
                 currentChecklistData.tasks = newTasks;
                 renderTasks(currentChecklistData.tasks);
                 alert("Đã làm mới checklist thành công cho kỳ mới!");
@@ -603,11 +621,9 @@
             console.error("Lỗi khi làm mới:", error);
             alert("Đã xảy ra lỗi khi làm mới checklist.");
         } finally {
-            const loadingBtn = document.querySelector('.btn-warning');
             setButtonLoading(loadingBtn, false);
         }
     }
-
     </script>
 </body>
 </html>
