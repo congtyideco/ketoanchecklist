@@ -261,6 +261,7 @@
     let currentChecklistData = null;
     let selectionModal, mainAppModal, newAccountantModal, addTaskModal;
 
+    // Dữ liệu công việc ban đầu được cập nhật với thuộc tính 'part'
     const initialTasks = [
         // ===== PHẦN 1: KẾ TOÁN TỔNG HỢP =====
         { id: 1, part: 'Kế toán Tổng hợp', category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
@@ -288,22 +289,22 @@
         { id: 23, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '', deadline: '' },
 
         // ===== PHẦN 2: KẾ TOÁN BÁN HÀNG, KHO, CÔNG NỢ PHẢI THU =====
-        { id: 1, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Bán hàng] Đối chiếu, gửi biên bản xác nhận công nợ cho khách hàng', status: 'not-started', notes: '', deadline: '' },
-        { id: 2, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Kho] Đối chiếu số liệu tồn kho giữa sổ sách và thực tế', status: 'not-started', notes: '', deadline: '' },
-        { id: 3, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Công nợ] Lập báo cáo công nợ theo tuổi nợ, đôn đốc nợ quá hạn từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
-        { id: 4, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Lập và xuất hóa đơn bán hàng hàng ngày, hạch toán doanh thu', status: 'not-started', notes: '', deadline: '' },
-        { id: 5, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Xử lý các khoản giảm trừ: chiết khấu, hàng bán bị trả lại', status: 'not-started', notes: '', deadline: '' },
-        { id: 6, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Lập phiếu nhập kho, xuất kho khi có phát sinh, hạch toán vào phần mềm', status: 'not-started', notes: '', deadline: '' },
-        { id: 7, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Giám sát tình hình nhập-xuất-tồn kho hàng ngày', status: 'not-started', notes: '', deadline: '' },
-        { id: 8, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Theo dõi, cập nhật các khoản phải thu phát sinh trong ngày', status: 'not-started', notes: '', deadline: '' },
-        { id: 9, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Gửi thông báo nhắc nợ các khoản sắp đến hạn', status: 'not-started', notes: '', deadline: '' },
-        { id: 10, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Bán hàng] Tổng hợp hóa đơn, lập báo cáo bán hàng, báo cáo doanh thu', status: 'not-started', notes: '', deadline: '' },
-        { id: 11, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Tham gia kiểm kê kho cuối tháng', status: 'not-started', notes: '', deadline: '' },
-        { id: 12, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Lập báo cáo Nhập - Xuất - Tồn kho tháng', status: 'not-started', notes: 'Đối chiếu với kế toán tổng hợp', deadline: '' },
-        { id: 13, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Đối chiếu công nợ phải thu với tất cả khách hàng cuối tháng', status: 'not-started', notes: '', deadline: '' },
-        { id: 14, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Lập báo cáo tổng hợp công nợ phải thu, phân tích tuổi nợ', status: 'not-started', notes: '', deadline: '' },
-    {id: 15, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Báo cáo] Kết chuyển báo cáo tổng hợp cho kê toán tổng hợp/ kết toán trưởng', status: 'not-started', notes: '', deadline: '' }
-	];
+        { id: 24, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Bán hàng] Đối chiếu, gửi biên bản xác nhận công nợ cho khách hàng', status: 'not-started', notes: '', deadline: '' },
+        { id: 25, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Kho] Đối chiếu số liệu tồn kho giữa sổ sách và thực tế', status: 'not-started', notes: '', deadline: '' },
+        { id: 26, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Công nợ] Lập báo cáo công nợ theo tuổi nợ, đôn đốc nợ quá hạn từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
+        { id: 27, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Lập và xuất hóa đơn bán hàng hàng ngày, hạch toán doanh thu', status: 'not-started', notes: '', deadline: '' },
+        { id: 28, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Xử lý các khoản giảm trừ: chiết khấu, hàng bán bị trả lại', status: 'not-started', notes: '', deadline: '' },
+        { id: 29, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Lập phiếu nhập kho, xuất kho khi có phát sinh, hạch toán vào phần mềm', status: 'not-started', notes: '', deadline: '' },
+        { id: 30, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Giám sát tình hình nhập-xuất-tồn kho hàng ngày', status: 'not-started', notes: '', deadline: '' },
+        { id: 31, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Theo dõi, cập nhật các khoản phải thu phát sinh trong ngày', status: 'not-started', notes: '', deadline: '' },
+        { id: 32, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Gửi thông báo nhắc nợ các khoản sắp đến hạn', status: 'not-started', notes: '', deadline: '' },
+        { id: 33, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Bán hàng] Tổng hợp hóa đơn, lập báo cáo bán hàng, báo cáo doanh thu', status: 'not-started', notes: '', deadline: '' },
+        { id: 34, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Tham gia kiểm kê kho cuối tháng', status: 'not-started', notes: '', deadline: '' },
+        { id: 35, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Lập báo cáo Nhập - Xuất - Tồn kho tháng', status: 'not-started', notes: 'Đối chiếu với kế toán tổng hợp', deadline: '' },
+        { id: 36, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Đối chiếu công nợ phải thu với tất cả khách hàng cuối tháng', status: 'not-started', notes: '', deadline: '' },
+        { id: 37, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Lập báo cáo tổng hợp công nợ phải thu, phân tích tuổi nợ', status: 'not-started', notes: '', deadline: '' },
+        {id: 38, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Báo cáo] Kết chuyển báo cáo tổng hợp cho kê toán tổng hợp/ kết toán trưởng', status: 'not-started', notes: '', deadline: '' }
+    ];
     
     document.addEventListener('DOMContentLoaded', () => {
         selectionModal = new bootstrap.Modal(document.getElementById('acc-checklist-selectionModal'));
@@ -332,7 +333,7 @@
             const data = snapshot.val();
             listDiv.innerHTML = '';
             if (data) {
-                // Lọc bỏ các mục không hợp lệ
+                // Lọc bỏ các mục không hợp lệ để tránh hiển thị "undefined"
                 const validChecklists = Object.values(data).filter(acc => acc && acc.id && acc.accountantName);
                 if (validChecklists.length > 0) {
                     validChecklists.forEach(acc => {
@@ -443,7 +444,6 @@
         const deadline = document.getElementById('acc-checklist-taskDeadline').value;
 
         if (name && part && category) {
-            // Sửa lỗi: đảm bảo id là duy nhất và liên tục
             const newId = currentChecklistData.tasks.length > 0 ? Math.max(...currentChecklistData.tasks.map(t => t.id)) + 1 : 1;
             const newTask = {
                 id: newId, part: part, category: category, name: name,
@@ -558,78 +558,4 @@
     
     document.getElementById('acc-checklist-reportModal').addEventListener('show.bs.modal', function () {
         if (!currentChecklistData) return;
-        const { accountantName, tasks } = currentChecklistData;
-        const total = tasks.length;
-        const completed = tasks.filter(t => t.status === 'completed').length;
-        const inProgress = tasks.filter(t => t.status === 'in-progress').length;
-        const notStarted = total - completed - inProgress;
-        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-        
-        let reportText = `BÁO CÁO TIẾN ĐỘ CÔNG VIỆC KẾ TOÁN\n`;
-        reportText += `=====================================\n`;
-        reportText += `● Kế toán: ${accountantName}\n`;
-        reportText += `● Ngày báo cáo: ${new Date().toLocaleDateString('vi-VN')}\n`;
-        reportText += `\n--- TỔNG QUAN ---\n`;
-        reportText += `● Hoàn thành: ${completed}/${total} công việc (${percentage}%)\n`;
-        reportText += `● Đang làm: ${inProgress} công việc\n`;
-        reportText += `● Chưa làm: ${notStarted} công việc\n`;
-        
-        const parts = [...new Set(tasks.map(task => task.part))];
-
-        parts.forEach(part => {
-            reportText += `\n--- CHI TIẾT PHẦN: ${part.toUpperCase()} ---\n`;
-            const tasksInPart = tasks.filter(t => t.part === part);
-            tasksInPart.forEach(task => { 
-                let statusLabel = 'Chưa làm';
-                if (task.status === 'completed') statusLabel = 'Hoàn thành';
-                else if (task.status === 'in-progress') statusLabel = 'Đang làm';
-                
-                reportText += `[${statusLabel}] - ${task.name}\n`; 
-                if (task.notes) {
-                    reportText += `  └ Ghi chú: ${task.notes}\n`;
-                }
-            });
-        });
-        
-        document.getElementById('acc-checklist-reportContent').innerText = reportText;
-    });
-
-    function confirmRefreshChecklist() {
-        if (confirm("Bạn có chắc chắn muốn làm mới checklist cho kỳ mới không? Thao tác này sẽ đặt lại tất cả trạng thái công việc về 'Chưa làm' và xóa ghi chú/hạn chót.")) {
-            refreshChecklist();
-        }
-    }
-
-    async function refreshChecklist() {
-        if (!currentAccountantId) {
-            alert("Vui lòng chọn một checklist để làm mới.");
-            return;
-        }
-
-        const loadingBtn = document.querySelector('.btn-warning');
-        try {
-            setButtonLoading(loadingBtn, true);
-
-            const snapshot = await database.ref(`checklists/${currentAccountantId}`).once('value');
-            const currentData = snapshot.val();
-            
-            if (currentData) {
-                const newTasks = currentData.tasks.map(task => ({ ...task, status: 'not-started', notes: '', deadline: '' }));
-                await database.ref(`checklists/${currentAccountantId}/tasks`).set(newTasks);
-                currentChecklistData.tasks = newTasks;
-                renderTasks(currentChecklistData.tasks);
-                alert("Đã làm mới checklist thành công cho kỳ mới!");
-            } else {
-                alert("Không tìm thấy dữ liệu để làm mới.");
-            }
-
-        } catch (error) {
-            console.error("Lỗi khi làm mới:", error);
-            alert("Đã xảy ra lỗi khi làm mới checklist.");
-        } finally {
-            setButtonLoading(loadingBtn, false);
-        }
-    }
-    </script>
-</body>
-</html>
+        const {
