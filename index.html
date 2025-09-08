@@ -261,7 +261,6 @@
     let currentChecklistData = null;
     let selectionModal, mainAppModal, newAccountantModal, addTaskModal;
 
-    // Dữ liệu công việc ban đầu được cập nhật với thuộc tính 'part'
     const initialTasks = [
         // ===== PHẦN 1: KẾ TOÁN TỔNG HỢP =====
         { id: 1, part: 'Kế toán Tổng hợp', category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
@@ -333,17 +332,23 @@
             const data = snapshot.val();
             listDiv.innerHTML = '';
             if (data) {
-                Object.values(data).forEach(acc => {
-                    const item = document.createElement('div');
-                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    item.innerHTML = `
-                        <a href="#" class="text-decoration-none text-dark flex-grow-1" onclick="event.preventDefault(); loadChecklistFor('${acc.id}')">
-                            <strong>${acc.accountantName}</strong>
-                            <br><small class="text-muted">Ngày lập: ${acc.creationDate}</small>
-                        </a>
-                        <button class="btn btn-outline-danger btn-sm acc-checklist-delete-btn" onclick="confirmDeleteAccountant(this, '${acc.id}', '${acc.accountantName}')"><i class="bi bi-trash-fill"></i></button>`;
-                    listDiv.appendChild(item);
-                });
+                // Lọc bỏ các mục không hợp lệ
+                const validChecklists = Object.values(data).filter(acc => acc && acc.id && acc.accountantName);
+                if (validChecklists.length > 0) {
+                    validChecklists.forEach(acc => {
+                        const item = document.createElement('div');
+                        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        item.innerHTML = `
+                            <a href="#" class="text-decoration-none text-dark flex-grow-1" onclick="event.preventDefault(); loadChecklistFor('${acc.id}')">
+                                <strong>${acc.accountantName}</strong>
+                                <br><small class="text-muted">Ngày lập: ${acc.creationDate}</small>
+                            </a>
+                            <button class="btn btn-outline-danger btn-sm acc-checklist-delete-btn" onclick="confirmDeleteAccountant(this, '${acc.id}', '${acc.accountantName}')"><i class="bi bi-trash-fill"></i></button>`;
+                        listDiv.appendChild(item);
+                    });
+                } else {
+                    listDiv.innerHTML = '<p class="text-center text-muted p-3">Chưa có checklist nào.</p>';
+                }
             } else {
                 listDiv.innerHTML = '<p class="text-center text-muted p-3">Chưa có checklist nào.</p>';
             }
@@ -438,6 +443,7 @@
         const deadline = document.getElementById('acc-checklist-taskDeadline').value;
 
         if (name && part && category) {
+            // Sửa lỗi: đảm bảo id là duy nhất và liên tục
             const newId = currentChecklistData.tasks.length > 0 ? Math.max(...currentChecklistData.tasks.map(t => t.id)) + 1 : 1;
             const newTask = {
                 id: newId, part: part, category: category, name: name,
