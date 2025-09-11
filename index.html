@@ -259,9 +259,9 @@
 
     let currentAccountantId = null;
     let currentChecklistData = null;
-    let selectionModal, mainAppModal, newAccountantModal, addTaskModal;
+    let selectionModal, mainAppModal, newAccountantModal, addTaskModal, reportModal;
 
-    // Dữ liệu công việc ban đầu được cập nhật với thuộc tính 'part'
+    // Dữ liệu công việc ban đầu
     const initialTasks = [
         // ===== PHẦN 1: KẾ TOÁN TỔNG HỢP =====
         { id: 1, part: 'Kế toán Tổng hợp', category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
@@ -311,7 +311,9 @@
         mainAppModal = new bootstrap.Modal(document.getElementById('acc-checklist-mainAppModal'));
         newAccountantModal = new bootstrap.Modal(document.getElementById('acc-checklist-newAccountantModal'));
         addTaskModal = new bootstrap.Modal(document.getElementById('acc-checklist-addTaskModal'));
+        reportModal = new bootstrap.Modal(document.getElementById('acc-checklist-reportModal'));
         document.getElementById('acc-checklist-selectionModal').addEventListener('shown.bs.modal', loadAccountantList);
+        document.getElementById('acc-checklist-reportModal').addEventListener('show.bs.modal', generateReport);
     });
 
     function setButtonLoading(button, isLoading) {
@@ -320,8 +322,10 @@
             button.dataset.originalText = button.innerHTML;
             button.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Đang xử lý...`;
         } else {
+            if (button.dataset.originalText) {
+                button.innerHTML = button.dataset.originalText;
+            }
             button.disabled = false;
-            button.innerHTML = button.dataset.originalText;
         }
     }
 
@@ -333,7 +337,6 @@
             const data = snapshot.val();
             listDiv.innerHTML = '';
             if (data) {
-                // Lọc bỏ các mục không hợp lệ để tránh hiển thị "undefined"
                 const validChecklists = Object.values(data).filter(acc => acc && acc.id && acc.accountantName);
                 if (validChecklists.length > 0) {
                     validChecklists.forEach(acc => {
@@ -354,7 +357,7 @@
                 listDiv.innerHTML = '<p class="text-center text-muted p-3">Chưa có checklist nào.</p>';
             }
         } catch (error) {
-            console.error("Lỗi:", error);
+            console.error("Lỗi khi tải danh sách:", error);
             listDiv.innerHTML = '<p class="text-center text-danger p-3">Lỗi kết nối CSDL.</p>';
         }
     }
@@ -368,27 +371,32 @@
         const nameInput = document.getElementById('acc-checklist-newAccountantNameInput');
         const name = nameInput.value.trim();
         const saveBtn = document.getElementById('acc-checklist-saveNewAccountantBtn');
-        if (!name) { alert('Vui lòng nhập tên.'); return; }
+        if (!name) {
+            alert('Vui lòng nhập tên.');
+            return;
+        }
         setButtonLoading(saveBtn, true);
+
         try {
-            const accountantId = slugify(name);
-            const ref = database.ref('checklists/' + accountantId);
-            const snapshot = await ref.once('value');
-            if (snapshot.exists()) {
-                alert('Tên này đã tồn tại.');
-                return;
-            }
+            // SỬA LỖI: Sử dụng push() để Firebase tự tạo ID duy nhất, an toàn và đáng tin cậy.
+            const newChecklistRef = database.ref('checklists').push();
+            const newChecklistId = newChecklistRef.key;
+
             const newChecklist = {
-                id: accountantId, accountantName: name,
+                id: newChecklistId, // Lưu ID duy nhất này vào trong dữ liệu
+                accountantName: name,
                 creationDate: new Date().toLocaleDateString('vi-VN'),
                 tasks: JSON.parse(JSON.stringify(initialTasks))
             };
-            await ref.set(newChecklist);
+
+            await newChecklistRef.set(newChecklist);
+            
             newAccountantModal.hide();
-            loadChecklistFor(accountantId);
+            loadChecklistFor(newChecklistId);
+
         } catch (error) {
-            console.error("Lỗi:", error);
-            alert("Đã xảy ra lỗi khi tạo mới.");
+            console.error("Lỗi khi tạo checklist mới:", error);
+            alert("Đã xảy ra lỗi khi tạo mới. Vui lòng thử lại.");
         } finally {
             setButtonLoading(saveBtn, false);
         }
@@ -405,17 +413,17 @@
                 selectionModal.hide();
                 mainAppModal.show();
             } else {
-                alert('Không tìm thấy dữ liệu.');
+                alert('Không tìm thấy dữ liệu cho checklist này.');
                 loadAccountantList();
             }
         } catch (error) {
-            console.error("Lỗi:", error);
-            alert("Không thể tải dữ liệu.");
+            console.error("Lỗi khi tải checklist:", error);
+            alert("Không thể tải dữ liệu checklist.");
         }
     }
 
     function confirmDeleteAccountant(button, id, name) {
-        if (confirm(`Bạn có chắc chắn muốn xóa checklist của "${name}" không?`)) {
+        if (confirm(`Bạn có chắc chắn muốn xóa checklist của "${name}" không? Hành động này không thể hoàn tác.`)) {
             deleteAccountant(button, id);
         }
     }
@@ -426,8 +434,8 @@
             await database.ref('checklists/' + id).remove();
             loadAccountantList();
         } catch(error) {
-            console.error("Lỗi:", error);
-            alert("Xóa thất bại.");
+            console.error("Lỗi khi xóa:", error);
+            alert("Xóa checklist thất bại.");
             setButtonLoading(button, false);
         }
     }
@@ -465,8 +473,8 @@
         try {
             await database.ref(`checklists/${currentAccountantId}/tasks`).set(currentChecklistData.tasks);
         } catch (error) {
-            console.error("Lỗi khi lưu:", error);
-            alert("Lỗi: Không thể lưu thay đổi.");
+            console.error("Lỗi khi lưu công việc:", error);
+            alert("Lỗi: Không thể lưu thay đổi vào CSDL.");
         }
     }
 
@@ -502,9 +510,10 @@
                 
                 tasksInPart.filter(t => t.category === category).forEach(task => {
                     const tr = document.createElement('tr');
+                    // SỬA LỖI: Truyền 'this' (element) vào hàm updateStatus để tránh lỗi "event is not defined"
                     tr.innerHTML = `
                         <td>${task.id}</td><td>${task.name}</td>
-                        <td><select class="form-select form-select-sm acc-checklist-status-select" onchange="updateStatus(${task.id}, this.value)"><option value="not-started">Chưa làm</option><option value="in-progress">Đang làm</option><option value="completed">Hoàn thành</option></select></td>
+                        <td><select class="form-select form-select-sm acc-checklist-status-select" onchange="updateStatus(${task.id}, this.value, this)"><option value="not-started">Chưa làm</option><option value="in-progress">Đang làm</option><option value="completed">Hoàn thành</option></select></td>
                         <td><input type="date" class="form-control form-control-sm" value="${task.deadline || ''}" onchange="updateDeadline(${task.id}, this.value)"></td>
                         <td><textarea class="form-control form-control-sm acc-checklist-notes-input" rows="1" onchange="updateNotes(${task.id}, this.value)">${task.notes || ''}</textarea></td>`;
                     const select = tr.querySelector('.acc-checklist-status-select');
@@ -520,7 +529,15 @@
         updateDashboard();
     }
 
-    function updateStatus(taskId, status) { const task = currentChecklistData.tasks.find(t => t.id === taskId); if (task) { task.status = status; updateSelectColor(event.target, status); updateDashboard(); saveTasks(); } }
+    function updateStatus(taskId, status, selectElement) { 
+        const task = currentChecklistData.tasks.find(t => t.id === taskId); 
+        if (task) { 
+            task.status = status; 
+            updateSelectColor(selectElement, status); 
+            updateDashboard(); 
+            saveTasks(); 
+        } 
+    }
     function updateNotes(taskId, notes) { const task = currentChecklistData.tasks.find(t => t.id === taskId); if(task){task.notes = notes; saveTasks();} }
     function updateDeadline(taskId, deadline) { const task = currentChecklistData.tasks.find(t => t.id === taskId); if(task){task.deadline = deadline; saveTasks();} }
 
@@ -546,16 +563,82 @@
         else if (status === 'completed') select.classList.add('acc-checklist-status-completed');
     }
 
-    function slugify(str) {
-        str = str.replace(/^\s+|\s+$/g, '').toLowerCase();
-        const from = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ·/_,:;";
-        const to   = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd------";
-        for (let i = 0, l = from.length; i < l; i++) str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
-        return str.replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+    function generateReport() {
+        if (!currentChecklistData) return;
+        const { accountantName, tasks } = currentChecklistData;
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.status === 'completed').length;
+        const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+        const notStarted = total - completed - inProgress;
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        
+        let reportText = `BÁO CÁO TIẾN ĐỘ CHECKLIST CÔNG VIỆC THÁNG ${month}/${year}\n`;
+        reportText += `Người thực hiện: ${accountantName}\n`;
+        reportText += `Ngày báo cáo: ${now.toLocaleDateString('vi-VN')}\n`;
+        reportText += `===================================================\n\n`;
+        reportText += `TỔNG QUAN:\n`;
+        reportText += `- Hoàn thành: ${completed}/${total} công việc (${percentage}%)\n`;
+        reportText += `- Đang thực hiện: ${inProgress}\n`;
+        reportText += `- Chưa thực hiện: ${notStarted}\n\n`;
+        reportText += `CHI TIẾT CÁC CÔNG VIỆC CHƯA HOÀN THÀNH:\n`;
+        reportText += `---------------------------------------------------\n`;
+
+        const uncompletedTasks = tasks.filter(t => t.status !== 'completed');
+        if (uncompletedTasks.length > 0) {
+             const parts = [...new Set(uncompletedTasks.map(task => task.part))];
+             parts.forEach(part => {
+                reportText += `\n[${part.toUpperCase()}]\n`;
+                const tasksInPart = uncompletedTasks.filter(t => t.part === part);
+                tasksInPart.forEach(task => {
+                    let statusText = task.status === 'in-progress' ? 'Đang làm' : 'Chưa làm';
+                    reportText += `- ${task.name} -> [${statusText}]`;
+                    if (task.notes) {
+                        reportText += `\n  Ghi chú: ${task.notes}\n`;
+                    } else {
+                        reportText += `\n`;
+                    }
+                });
+             });
+        } else {
+            reportText += `\n>>> TUYỆT VỜI! Tất cả công việc đã được hoàn thành.\n`;
+        }
+        document.getElementById('acc-checklist-reportContent').innerText = reportText;
     }
 
-    window.copyReport = function() { navigator.clipboard.writeText(document.getElementById('acc-checklist-reportContent').innerText).then(() => alert('Đã sao chép báo cáo!')); };
+    window.copyReport = function() { 
+        navigator.clipboard.writeText(document.getElementById('acc-checklist-reportContent').innerText)
+            .then(() => alert('Đã sao chép báo cáo!'))
+            .catch(err => console.error('Không thể sao chép: ', err)); 
+    };
     
-    document.getElementById('acc-checklist-reportModal').addEventListener('show.bs.modal', function () {
-        if (!currentChecklistData) return;
-        const {
+    function confirmRefreshChecklist() {
+        if (confirm('Bạn có chắc chắn muốn làm mới toàn bộ checklist về trạng thái "Chưa làm"? Hành động này không thể hoàn tác.')) {
+            refreshChecklist();
+        }
+    }
+    
+    async function refreshChecklist() {
+        if (!currentChecklistData || !currentAccountantId) return;
+        
+        currentChecklistData.tasks.forEach(task => {
+            task.status = 'not-started';
+            task.notes = '';
+        });
+        
+        try {
+            await saveTasks();
+            renderTasks(currentChecklistData.tasks);
+            alert('Checklist đã được làm mới cho kỳ tiếp theo!');
+        } catch (error) {
+            console.error("Lỗi khi làm mới:", error);
+            alert("Đã có lỗi xảy ra khi làm mới checklist.");
+        }
+    }
+    </script>
+
+</body>
+</html>
