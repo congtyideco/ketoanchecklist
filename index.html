@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accounting Checklist Pro - Hùng Hiệm</title>
+    <title>Accounting Checklist Pro - Quản trị Mục tiêu</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -14,7 +14,6 @@
         .acc-checklist-status-in-progress { color: #ffc107; border-color: #ffc107; }
         .acc-checklist-status-completed { color: #198754; border-color: #198754; }
         
-        /* Cập nhật style cho modal báo cáo để in PDF đẹp hơn */
         #acc-checklist-reportModal .modal-body { 
             background-color: #fff; 
             padding: 20px;
@@ -86,7 +85,6 @@
             padding-bottom: 0.5rem;
             border-bottom: 3px solid #004a99;
         }
-        /* === Style cho lỗi ghi chú === */
         .acc-checklist-notes-input.is-invalid {
             border-color: #dc3545;
             box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
@@ -98,12 +96,12 @@
             font-size: 0.875em;
             color: #dc3545;
         }
-        /* === Style cho chỉnh sửa nội dung checklist === */
         .acc-checklist-task-name {
             cursor: pointer;
             transition: background-color 0.2s;
             padding: 4px 8px;
             border-radius: 4px;
+            display: inline-block;
         }
         .acc-checklist-task-name:hover {
             background-color: #f8f9fa;
@@ -119,6 +117,115 @@
             border-radius: 4px;
             padding: 4px 8px;
             font-size: 14px;
+        }
+
+        /* === STYLE CHO PLANNER POPUP === */
+        #acc-checklist-plannerModal .modal-dialog { max-width: 98vw; margin: 1vw auto; }
+        #acc-checklist-plannerModal .modal-content { height: 96vh; }
+        #acc-checklist-plannerModal .modal-body { overflow-y: auto; background-color: #f0f2f5; padding: 10px; }
+        .planner-day-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .planner-day-header {
+            background-color: #004a99;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .planner-day-title { font-weight: bold; font-size: 1.1rem; margin: 0; }
+        .planner-table input.form-control { border: none; border-radius: 0; background: transparent; }
+        .planner-table input.form-control:focus { box-shadow: none; background: #fff; }
+        
+        .planner-row-done {
+            background-color: #ffebee !important; 
+            color: #c62828;
+        }
+        .planner-row-done input {
+            color: #c62828 !important;
+            text-decoration: line-through;
+        }
+
+        /* === STYLE MỚI: MỤC TIÊU CÔNG VIỆC === */
+        .planner-objective-box {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .planner-objective-label {
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .planner-objective-input {
+            width: 100%;
+            border: 1px solid #bbdefb;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 1.1rem;
+            color: #0d47a1;
+        }
+        .planner-objective-input:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        /* === STYLE CHO CẢNH BÁO THÔNG MINH (SMART ALERT) === */
+        #smart-alert-container {
+            display: none;
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        .smart-alert-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        .smart-alert-list {
+            margin-top: 10px;
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+        .smart-alert-list li {
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        .task-overdue-badge {
+            background-color: #dc3545;
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: bold;
+            animation: blink 1.5s infinite;
+            display: inline-flex;
+            align-items: center;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
@@ -177,6 +284,19 @@
                             <h2><i class="bi bi-card-checklist"></i> BẢNG CHECKLIST CÔNG VIỆC KẾ TOÁN THÁNG - BÁO CÁO BGĐ CUỐI KỲ</h2>
                             <h5 id="acc-checklist-currentMonth"></h5>
                         </div>
+
+                        <div id="smart-alert-container">
+                            <div class="smart-alert-title">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+                                CẢNH BÁO: PHÁT HIỆN CÔNG VIỆC TRONG KẾ HOẠCH BỊ TRỄ HẠN!
+                            </div>
+                            <ul id="smart-alert-list" class="smart-alert-list">
+                                </ul>
+                            <div class="mt-2 text-end">
+                                <small style="font-style: italic;">(Các mục này sẽ BỊ KHÓA trạng thái Hoàn thành cho đến khi bạn xử lý xong trong Kế hoạch chi tiết)</small>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-lg-3">
                                 <div class="card acc-checklist-dashboard">
@@ -214,6 +334,23 @@
         </div>
     </div>
 
+    <div class="modal fade" id="acc-checklist-plannerModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-calendar-week"></i> KẾ HOẠCH CHI TIẾT TUẦN - <span id="planner-task-title-display" style="font-weight:bold; color: #fff; text-transform: uppercase;"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" onclick="closePlannerModal()"></button>
+                </div>
+                <div class="modal-body" id="planner-body-content">
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closePlannerModal()">Quay lại Checklist</button>
+                    <button type="button" class="btn btn-primary" onclick="savePlannerData()"><i class="bi bi-save"></i> Lưu Kế Hoạch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="acc-checklist-newAccountantModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -246,7 +383,7 @@
                         <div class="mb-3">
                             <label for="acc-checklist-taskPart" class="form-label">Phòng ban/Phần</label>
                             <select class="form-select" id="acc-checklist-taskPart" required>
-                                <option value="Kế toán Tổng hợp">Kế toán Tổng hợp</option>
+                                <option value="Quản lý kế toán -kho vận">Quản lý kế toán - kho vận</option>
                                 <option value="Kế toán Bán hàng, Kho & Công nợ Phải thu">Kế toán Bán hàng, Kho & Công nợ Phải thu</option>
                             </select>
                         </div>
@@ -257,10 +394,6 @@
                                 <option value="Trong kỳ">Công việc trong kỳ</option>
                                 <option value="Cuối kỳ - Thuế & Báo cáo">Công việc cuối kỳ - Thuế & Báo cáo</option>
                             </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="acc-checklist-taskDeadline" class="form-label">Hạn chót (Tùy chọn)</label>
-                            <input type="date" class="form-control" id="acc-checklist-taskDeadline">
                         </div>
                     </form>
                 </div>
@@ -296,7 +429,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-    // 🔑 Cấu hình Firebase
     const firebaseConfig = { 
         apiKey : "AIzaSyB4cHf-DQ3iczPH25ocMY1_dL5gbSGzLKg" , 
         authDomain : "baocaonhanh-8cfc6.firebaseapp.com" , 
@@ -312,58 +444,68 @@
 
     let currentAccountantId = null;
     let currentChecklistData = null;
-    let selectionModal, mainAppModal, newAccountantModal, addTaskModal;
+    let selectionModal, mainAppModal, newAccountantModal, addTaskModal, plannerModal;
+    let currentPlannerTaskId = null;
+    let currentPlannerData = {};
 
-    // === Định nghĩa placeholder theo phần ===
+    const PLANNER_DAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
+
+    const DAY_INDEX_MAP = {
+        "Thứ 2": 1, "Thứ 3": 2, "Thứ 4": 3, "Thứ 5": 4, 
+        "Thứ 6": 5, "Thứ 7": 6, "Chủ Nhật": 7
+    };
+
     const NOTE_PLACEHOLDERS = {
         'Kế toán Tổng hợp': 'Em hãy điểm lại ngắn gọn - xúc tích công việc hoàn thành  .',
         'Kế toán Bán hàng, Kho & Công nợ Phải thu': 'Em hãy điểm lại công việc hoàn thành '
     };
 
-    // === Dữ liệu công việc ban đầu ===
     const initialTasks = [
-        // ===== PHẦN 1: KẾ TOÁN TỔNG HỢP =====
-        { id: 1, part: 'Kế toán Tổng hợp', category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '', deadline: '' },
-        { id: 2, part: 'Kế toán Tổng hợp', category: 'Đầu kỳ', name: 'Kiểm tra số dư đầu kỳ của các tài khoản trên bảng cân đối', status: 'not-started', notes: '', deadline: '' },
-        { id: 3, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Xử lý - điều phối hoạt động mua hàng: hóa đơn - chứng từ - hàng hóa- phiếu nhập(ERP/MISA) ', status: 'not-started', notes: 'Đối chiếu với hợp đồng, biên bản giao hàng...', deadline: '' },
-        { id: 4, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Xử lý -điều phối hoạt động bán hàng: giám sát - kiểm tra - hóa đơn - phiếu xuất ( trên ERP/MISA)', status: 'not-started', notes: 'Kiểm tra chính sách chiết khấu, công nợ', deadline: '' },
-        { id: 5, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Hạch toán và kiểm tra hạch toán các hóa đơn mua - bán - điều chỉnh - đổi trả trên Misa/ERP ', status: 'not-started', notes: '', deadline: '' },
-        { id: 6, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Hạch toán và đối chiếu khoản phải trả/ phải thu phát sinh vào sổ', status: 'not-started', notes: '', deadline: '' },
-        { id: 7, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Hạch toán các nghiệp vụ liên quan đến tiền mặt, sao kê ngân hàng/ theo dõi kê ước vay..', status: 'not-started', notes: 'Đối chiếu sổ phụ ngân hàng hàng ngày/tuần', deadline: '' },
-        { id: 8, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Lập bản kê chi ncc định kỳ cho BGĐ/ Kiểm tra sổ/ dòng tiền/', status: 'not-started', notes: '', deadline: '' },
-        { id: 9, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Đối chiếu thanh toán thu hộ từ đơn bán / ghi nhận doanh thu trong kỳ theo TK cty cùng BGĐ', status: 'not-started', notes: '', deadline: '' },       
-        { id: 10, part: 'Kế toán Tổng hợp', category: 'Trong kỳ', name: 'Xử lý các phát sinh liên quan đến lao động, lương, khoản tạm ứng, khách ', status: 'not-started', notes: '', deadline: '' },     
-        { id: 11, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tính và trích khấu hao - phân bổ CCDC trên Misa/ ERP mục tạm ứng', status: 'not-started', notes: '', deadline: '' },
-        { id: 12, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Họp đánh giá bộ phận: tổng hợp dữ liệu nội bộ', status: 'not-started', notes: '', deadline: '' },
-        { id: 13, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Phối hợp kiểm kê hàng hóa- chứng từ với kho ', status: 'not-started', notes: '', deadline: '' },
-        { id: 14, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Ra sót khai chi/ thu trên ERP/MISA để hoàn thành báo cáo', status: 'not-started', notes: '', deadline: '' },
-        { id: 15, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Đối chiếu số liệu báo cáo trên ERP/Misa / kiểm tra', status: 'not-started', notes: '', deadline: '' },
-        { id: 16, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập khi lương thưởng trên ERP /hoạch toán chi lương trên Misa ', status: 'not-started', notes: 'Hạn cuối là ngày 20 của tháng sau', deadline: '' },
-        { id: 17, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế TNCN và nộp (nếu theo tháng/quý)', status: 'not-started', notes: '', deadline: '' },
-        { id: 18, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập hạch toán BHXH-BHYT-BHTN phát sinh - xem lại kỹ', status: 'not-started', notes: '', deadline: '' },
-        { id: 19, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tạm tính thuế TNDN và nộp (nếu có)', status: 'not-started', notes: '', deadline: '' },
-        { id: 20, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện các bút toán kết chuyển doanh thu, chi phí', status: 'not-started', notes: '', deadline: '' },
-        { id: 21, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Đối soát xác thực báo cáo kết quả kinh doanh ERP/Misa', status: 'not-started', notes: '', deadline: '' },
-        { id: 22, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối số phát sinh', status: 'not-started', notes: 'Kiểm tra tổng Nợ = tổng Có', deadline: '' },
-        { id: 23, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Báo cáo kết quả hoạt động kinh doanh (ERP)', status: 'not-started', notes: '', deadline: '' },
-        { id: 24, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối kế toán - báo cáo trong kỳ MISA', status: 'not-started', notes: '', deadline: '' },
-        { id: 25, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '', deadline: '' },
-        // ===== PHẦN 2: KẾ TOÁN BÁN HÀNG, KHO, CÔNG NỢ PHẢI THU =====
-        { id: 26, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Bán hàng] Kiểm tra - đối sót khản ghi nhận thanh toán các đơn hàng trên TK hay đã ghi nhận doanh thu chưa?', status: 'not-started', notes: '', deadline: '' },
-        { id: 27, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Kho] Kiểm tra các hóa đơn xuất ký trên Misa và hạch toán doanh thu trong Misa ', status: 'not-started', notes: '', deadline: '' },
-        { id: 28, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Công nợ] Ra soát lại các khai báo hóa đơn của đơn hàng chưa bấm xuất trên ERP để ghi nhận doanh thu', status: 'not-started', notes: '', deadline: '' },
-        { id: 29, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Lập và xuất hóa đơn bán hàng hàng ngày, hạch toán doanh thu', status: 'not-started', notes: '', deadline: '' },
-        { id: 30, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Xử lý các khoản giảm trừ: chiết khấu, hàng bán bị trả lại', status: 'not-started', notes: '', deadline: '' },
-        { id: 31, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Lập phiếu nhập kho, xuát kho khi có phát sinh, hạch toán vào phần mềm ERP/MISA', status: 'not-started', notes: '', deadline: '' },
-        { id: 32, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Giám sát tình hình nhập-xuất-tồn kho hàng ngày trên ERP/Misa cho khớp', status: 'not-started', notes: '', deadline: '' },
-        { id: 33, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Theo dõi, cập nhật các khoản phải thu phát sinh trong ngày với quản lý kế toán/BGĐ', status: 'not-started', notes: '', deadline: '' },
-        { id: 34, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Phôi hợp với kinh doanh đối chiếu công nợ- nhắc thu hối nợ trong kỳ', status: 'not-started', notes: '', deadline: '' },
-        { id: 35, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Bán hàng] Tổng hợp hóa đơn, lập báo cáo bán hàng, báo cáo doanh thu', status: 'not-started', notes: '', deadline: '' },
-        { id: 36, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Tham gia kiểm kê kho cuối tháng', status: 'not-started', notes: '', deadline: '' },
-        { id: 37, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Lập báo cáo Nhập - Xuất - Tồn kho tháng', status: 'not-started', notes: 'Đối chiếu với kế toán tổng hợp', deadline: '' },
-        { id: 38, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Đối chiếu công nợ phải thu với tất cả khách hàng cuối tháng', status: 'not-started', notes: '', deadline: '' },
-        { id: 39, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Lập báo cáo tổng hợp công nợ phải thu, phân tích tuổi nợ', status: 'not-started', notes: '', deadline: '' },
-        { id: 40, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Báo cáo] Kết chuyển báo cáo tổng hợp cho kê toán tổng hợp/ kết toán trưởng', status: 'not-started', notes: '', deadline: '' }
+        { id: 1, part: 'Quản lý kế toán -kho vận', category: 'Đầu kỳ', name: 'Kết chuyển lãi/lỗ chưa phân phối từ kỳ trước', status: 'not-started', notes: '' },
+        { id: 2, part: 'Quản lý kế toán -kho vận', category: 'Đầu kỳ', name: 'Kiểm tra số dư đầu kỳ của các tài khoản trên bảng cân đối', status: 'not-started', notes: '' },
+        { id: 3, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: 'Xử lý - điều phối hoạt động mua hàng: hóa đơn - chứng từ - hàng hóa- phiếu nhập(ERP/MISA) ', status: 'not-started', notes: 'Đối chiếu với hợp đồng, biên bản giao hàng...' },
+        { id: 4, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: 'Xử lý -điều phối hoạt động bán hàng: giám sát - kiểm tra - hóa đơn - phiếu xuất ( trên ERP/MISA)', status: 'not-started', notes: 'Kiểm tra chính sách chiết khấu, công nợ' },
+        { id: 5, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: 'Hạch toán và kiểm tra hạch toán các hóa đơn mua hàng vào Misa/ERP ', status: 'not-started', notes: '' },
+        { id: 6, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: 'Kiểm tra - giám sát công việc  đối chiếu khoản phải trả/ phải thu phát sinh vào sổ', status: 'not-started', notes: '' },
+        { id: 7, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: 'Kiểm tra - diều phối - giám sát việc thực hiện khai chi - mua sắm liên quan', status: 'not-started', notes: 'Đối chiếu sổ phụ ngân hàng hàng ngày/tuần' },
+        { id: 8, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: 'Lập bản kê chi ncc định kỳ cho BGĐ/ Kiểm tra sổ/ dòng tiền/', status: 'not-started', notes: '' },
+        
+        { id: 9, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: 'Xử lý các phát sinh liên quan đến lao động, lương, khoản tạm ứng  ', status: 'not-started', notes: '' },     
+        { id: 10, part: 'Quản lý kế toán -kho vận', category: 'Trong kỷ', name: 'Điều phối công việc kho vận - kế trong trong bộ phận hoàn thành nhiệm vụ', status: 'not-started', notes: '' },
+        
+		{ id: 11, part: 'Quản lý kế toán -kho vận', category: 'Trong kỳ', name: ' Kiểm tra - giám sát hoạt động xuất nhập kho - giao nhận trong bộ phận khi phát sinh mua-bán', status: 'not-started', notes: '' },
+        { id: 12, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Phụ trách quản lý triển khai công tác kiểm kê kho hàng hóa định kỳ ', status: 'not-started', notes: '' },
+        { id: 13, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện kiểm tra -ra sót số liệu kê khai thu / chi và đổng bộ sổ sách ', status: 'not-started', notes: '' },
+        { id: 14, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Đối chiếu số liệu báo cáo trên ERP/Misa / kiểm tra', status: 'not-started', notes: '' },
+        { id: 15, part: 'Kế toán Tổng hợp', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập khi lương thưởng trên ERP /hoạch toán chi lương trên Misa ', status: 'not-started', notes: 'Hạn cuối là ngày 20 của tháng sau' },
+        { id: 16, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập tờ khai thuế TNCN và nộp (nếu theo tháng/quý)', status: 'not-started', notes: '' },
+        { id: 17, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập hạch toán BHXH-BHYT-BHTN phát sinh - xem lại kỹ', status: 'not-started', notes: '' },
+        { id: 18, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Tạm tính thuế TNDN và nộp (nếu có)', status: 'not-started', notes: '' },
+        { id: 19, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Thực hiện các bút toán kết chuyển doanh thu, chi phí', status: 'not-started', notes: '' },
+        { id: 20, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Đối soát xác thực báo cáo kết quả kinh doanh ERP/Misa', status: 'not-started', notes: '' },
+        { id: 21, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối số phát sinh', status: 'not-started', notes: 'Kiểm tra tổng Nợ = tổng Có' },
+        { id: 22, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Báo cáo kết quả hoạt động kinh doanh (ERP)', status: 'not-started', notes: '' },
+        { id: 23, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Lập Bảng cân đối kế toán - báo cáo trong kỳ MISA', status: 'not-started', notes: '' },
+        { id: 24, part: 'Quản lý kế toán -kho vận', category: 'Cuối kỳ - Thuế & Báo cáo', name: 'Công tác chỉ đạo bộ phận In và lưu trữ sổ sách, chứng từ kế toán theo quy định', status: 'not-started', notes: '' },
+       
+
+
+
+	    { id: 1, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Bán hàng] Kiểm tra - đối sót khản ghi nhận thanh toán các đơn hàng trên TK hay đã ghi nhận doanh thu chưa?', status: 'not-started', notes: '' },
+        { id: 2, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Kho] Kiểm tra các hóa đơn xuất ký trên Misa và hạch toán doanh thu trong Misa ', status: 'not-started', notes: '' },
+        { id: 3, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Đầu kỳ', name: '[Công nợ] Ra soát lại các khai báo hóa đơn của đơn hàng chưa bấm xuất trên ERP để ghi nhận doanh thu', status: 'not-started', notes: '' },
+        { id: 4, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Lập và xuất hóa đơn bán hàng hàng ngày, hạch toán doanh thu', status: 'not-started', notes: '' },
+        { id: 5, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Bán hàng] Xử lý các khoản giảm trừ: chiết khấu, hàng bán bị trả lại', status: 'not-started', notes: '' },
+        { id: 6, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Lập phiếu nhập kho, xuát kho khi có phát sinh, hạch toán vào phần mềm ERP/MISA', status: 'not-started', notes: '' },
+        { id: 7, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Kho] Giám sát tình hình nhập-xuất-tồn kho hàng ngày trên ERP/Misa cho khớp', status: 'not-started', notes: '' },
+        { id: 8, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Theo dõi, cập nhật các khoản phải thu phát sinh trong ngày với quản lý kế toán/BGĐ', status: 'not-started', notes: '' },
+        { id: 9, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Trong kỳ', name: '[Công nợ] Phôi hợp với kinh doanh đối chiếu công nợ- nhắc thu hối nợ trong kỳ', status: 'not-started', notes: '' },
+        { id: 10, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Bán hàng] Tổng hợp hóa đơn, lập báo cáo bán hàng, báo cáo doanh thu', status: 'not-started', notes: '' },
+        { id: 11, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Tham gia kiểm kê kho cuối tháng', status: 'not-started', notes: '' },
+        { id: 12, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Kho] Lập báo cáo Nhập - Xuất - Tồn kho tháng', status: 'not-started', notes: 'Đối chiếu với kế toán tổng hợp' },
+        { id: 13, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Đối chiếu công nợ phải thu với tất cả khách hàng cuối tháng', status: 'not-started', notes: '' },
+        { id: 14, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Công nợ] Lập báo cáo tổng hợp công nợ phải thu, phân tích tuổi nợ', status: 'not-started', notes: '' },
+        { id: 15, part: 'Kế toán Bán hàng, Kho & Công nợ Phải thu', category: 'Cuối kỳ - Thuế & Báo cáo', name: '[Báo cáo] Kết chuyển báo cáo tổng hợp cho kê toán tổng hợp/ kết toán trưởng', status: 'not-started', notes: '' }
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -371,21 +513,28 @@
         mainAppModal = new bootstrap.Modal(document.getElementById('acc-checklist-mainAppModal'));
         newAccountantModal = new bootstrap.Modal(document.getElementById('acc-checklist-newAccountantModal'));
         addTaskModal = new bootstrap.Modal(document.getElementById('acc-checklist-addTaskModal'));
+        plannerModal = new bootstrap.Modal(document.getElementById('acc-checklist-plannerModal'));
         document.getElementById('acc-checklist-selectionModal').addEventListener('shown.bs.modal', loadAccountantList);
     });
 
-    // === CẬP NHẬT: Hàm updateStatus có kiểm tra ghi chú ===
+    // === CẬP NHẬT: LOGIC KHÓA TRẠNG THÁI HOÀN THÀNH ===
     function updateStatus(taskId, status, selectElement) {
         const task = currentChecklistData.tasks.find(t => t.id === taskId);
         if (!task) return;
 
+        // KIỂM TRA: Nếu công việc đang bị trễ hạn (Overdue) -> Không cho phép chọn "Hoàn thành"
+        if (status === 'completed' && isTaskOverdue(task)) {
+            alert('CẢNH BÁO QUẢN TRỊ:\n\nCông việc này đang có hạng mục trong Kế hoạch chi tiết bị TRỄ HẠN hoặc CHƯA HOÀN THÀNH.\n\nVui lòng vào "Lập KH" để xử lý dứt điểm các đầu việc trước khi báo cáo hoàn thành.');
+            // Trả về trạng thái cũ
+            selectElement.value = task.status;
+            return;
+        }
+
+        // Logic cũ: Kiểm tra độ dài ghi chú
         if (status === 'completed') {
             const noteLength = (task.notes || '').trim().length;
             if (noteLength < 20) {
-                // Hoàn lại trạng thái cũ
                 selectElement.value = task.status;
-
-                // Hiển thị lỗi
                 const noteTextarea = document.querySelector(`textarea[onchange*="updateNotes(${taskId},"]`);
                 if (noteTextarea) {
                     noteTextarea.classList.add('is-invalid');
@@ -421,48 +570,216 @@
         if (task) { task.notes = notes; saveTasks(); }
     }
 
-    function updateDeadline(taskId, deadline) {
+    function openPlanner(taskId) {
+        currentPlannerTaskId = taskId;
         const task = currentChecklistData.tasks.find(t => t.id === taskId);
-        if (task) { task.deadline = deadline; saveTasks(); }
+        if (!task) return;
+
+        currentPlannerData = task.weeklyPlan ? JSON.parse(JSON.stringify(task.weeklyPlan)) : {};
+        
+        // Đảm bảo có trường objective
+        if (!currentPlannerData.objective) currentPlannerData.objective = '';
+
+        PLANNER_DAYS.forEach(day => {
+            if (!currentPlannerData[day]) currentPlannerData[day] = [];
+        });
+
+        document.getElementById('planner-task-title-display').innerText = task.name;
+        renderPlannerUI();
+        plannerModal.show();
     }
 
-    // === TÍNH NĂNG MỚI: Chỉnh sửa nội dung công việc ===
+    function renderPlannerUI() {
+        const container = document.getElementById('planner-body-content');
+        container.innerHTML = '';
+
+        // === 1. RENDER KHUNG MỤC TIÊU (MỚI) ===
+        const objectiveDiv = document.createElement('div');
+        objectiveDiv.className = 'planner-objective-box';
+        objectiveDiv.innerHTML = `
+            <label class="planner-objective-label"><i class="bi bi-bullseye"></i> MỤC TIÊU / KẾT QUẢ THEN CHỐT CỦA CÔNG VIỆC:</label>
+            <input type="text" class="planner-objective-input" 
+                   value="${currentPlannerData.objective || ''}" 
+                   placeholder="Ví dụ: Hoàn tất đối chiếu công nợ với 100% khách hàng..." 
+                   onchange="updatePlannerObjective(this.value)">
+        `;
+        container.appendChild(objectiveDiv);
+
+        // === 2. RENDER CÁC NGÀY ===
+        PLANNER_DAYS.forEach(day => {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'planner-day-container';
+            
+            let tableRows = '';
+            currentPlannerData[day].forEach((item, index) => {
+                const rowClass = item.isDone ? 'planner-row-done' : '';
+                const btnClass = item.isDone ? 'btn-danger' : 'btn-outline-success';
+                const btnIcon = item.isDone ? '<i class="bi bi-x-circle"></i> Đóng' : '<i class="bi bi-check2-circle"></i> Xong';
+                
+                tableRows += `
+                    <tr class="${rowClass}">
+                        <td style="width: 30%"><input type="text" class="form-control" value="${item.content || ''}" onchange="updatePlannerItem('${day}', ${index}, 'content', this.value)" placeholder="Nội dung công việc..."></td>
+                        <td style="width: 15%"><input type="date" class="form-control" value="${item.start || ''}" onchange="updatePlannerItem('${day}', ${index}, 'start', this.value)"></td>
+                        <td style="width: 15%"><input type="date" class="form-control" value="${item.end || ''}" onchange="updatePlannerItem('${day}', ${index}, 'end', this.value)"></td>
+                        <td style="width: 25%"><input type="text" class="form-control" value="${item.result || ''}" onchange="updatePlannerItem('${day}', ${index}, 'result', this.value)" placeholder="Kết quả..."></td>
+                        <td style="width: 15%" class="text-end">
+                            <button class="btn btn-sm ${btnClass} me-1" onclick="togglePlannerItemDone('${day}', ${index})">${btnIcon}</button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="deletePlannerItem('${day}', ${index})"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            dayDiv.innerHTML = `
+                <div class="planner-day-header">
+                    <h5 class="planner-day-title">${day}</h5>
+                    <button class="btn btn-sm btn-light text-primary fw-bold" onclick="addPlannerItem('${day}')"><i class="bi bi-plus-lg"></i> Thêm việc</button>
+                </div>
+                <div class="p-2">
+                    <table class="table table-borderless planner-table mb-0 align-middle">
+                        <thead>
+                            <tr class="text-muted border-bottom" style="font-size: 0.85rem;">
+                                <th>Công việc</th>
+                                <th>Ngày BĐ</th>
+                                <th>Ngày KT</th>
+                                <th>Kết quả</th>
+                                <th class="text-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                    ${currentPlannerData[day].length === 0 ? '<div class="text-center text-muted fst-italic py-3">Chưa có kế hoạch cho ngày này</div>' : ''}
+                </div>
+            `;
+            container.appendChild(dayDiv);
+        });
+    }
+
+    // Cập nhật mục tiêu vào object tạm
+    function updatePlannerObjective(value) {
+        currentPlannerData.objective = value;
+    }
+
+    function addPlannerItem(day) {
+        currentPlannerData[day].push({ content: '', start: '', end: '', result: '', isDone: false });
+        renderPlannerUI();
+    }
+
+    function deletePlannerItem(day, index) {
+        if(confirm('Xóa dòng kế hoạch này?')) {
+            currentPlannerData[day].splice(index, 1);
+            renderPlannerUI();
+        }
+    }
+
+    function togglePlannerItemDone(day, index) {
+        currentPlannerData[day][index].isDone = !currentPlannerData[day][index].isDone;
+        renderPlannerUI();
+    }
+
+    function updatePlannerItem(day, index, field, value) {
+        currentPlannerData[day][index][field] = value;
+    }
+
+    function savePlannerData() {
+        if (!currentPlannerTaskId) return;
+        const task = currentChecklistData.tasks.find(t => t.id === currentPlannerTaskId);
+        if (task) {
+            task.weeklyPlan = currentPlannerData;
+            saveTasks();
+            alert('Đã lưu kế hoạch tuần!');
+            checkDailyProgress(); 
+            renderTasks(currentChecklistData.tasks);
+        }
+    }
+
+    function closePlannerModal() {
+        if(confirm('Các thay đổi chưa lưu sẽ bị mất. Bạn có chắc muốn đóng?')) {
+            plannerModal.hide();
+        }
+    }
+
+    function getCurrentDayIndex() {
+        const d = new Date();
+        const day = d.getDay(); 
+        if (day === 0) return 7; 
+        return day;
+    }
+
+    // === CẬP NHẬT: LOGIC KIỂM TRA TRỄ HẠN THÔNG MINH ===
+    function isTaskOverdue(task) {
+        if (!task.weeklyPlan) return false;
+        
+        const currentIdx = getCurrentDayIndex();
+        
+        for (const [dayName, items] of Object.entries(task.weeklyPlan)) {
+            // Bỏ qua field objective
+            if (dayName === 'objective') continue;
+
+            const dayIdx = DAY_INDEX_MAP[dayName];
+            
+            // CHỈ KIỂM TRA CÁC NGÀY TRƯỚC HÔM NAY
+            if (dayIdx < currentIdx) {
+                if (items && Array.isArray(items)) {
+                    // Logic mới: Một item được coi là trễ hạn khi:
+                    // 1. Chưa xong (!isDone)
+                    // 2. ĐÃ CÓ Nội dung (content)
+                    // 3. ĐÃ THIẾT LẬP Ngày bắt đầu VÀ Ngày kết thúc
+                    const hasOverdueItem = items.some(item => {
+                        const isConfigured = item.content && item.content.trim() !== '' && item.start && item.end;
+                        return isConfigured && !item.isDone;
+                    });
+
+                    if (hasOverdueItem) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function checkDailyProgress() {
+        if (!currentChecklistData) return;
+        
+        const alertContainer = document.getElementById('smart-alert-container');
+        const alertList = document.getElementById('smart-alert-list');
+        let unfinishedTasks = [];
+
+        currentChecklistData.tasks.forEach(task => {
+            if (isTaskOverdue(task)) {
+                unfinishedTasks.push(task.name);
+            }
+        });
+
+        if (unfinishedTasks.length > 0) {
+            alertList.innerHTML = '';
+            unfinishedTasks.forEach(name => {
+                const li = document.createElement('li');
+                li.innerText = name;
+                alertList.appendChild(li);
+            });
+            alertContainer.style.display = 'block'; 
+        } else {
+            alertContainer.style.display = 'none'; 
+        }
+    }
+
     function editTaskName(taskId) {
         const task = currentChecklistData.tasks.find(t => t.id === taskId);
         if (!task) return;
-        
         const taskElement = document.querySelector(`[data-task-id="${taskId}"] .acc-checklist-task-name`);
         if (!taskElement) return;
-        
-        // Tạo input để chỉnh sửa
         const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'acc-checklist-task-name-input';
-        input.value = task.name;
+        input.type = 'text'; input.className = 'acc-checklist-task-name-input'; input.value = task.name;
+        taskElement.classList.add('editing'); taskElement.innerHTML = ''; taskElement.appendChild(input); input.focus();
         
-        // Thay thế nội dung bằng input
-        taskElement.classList.add('editing');
-        taskElement.innerHTML = '';
-        taskElement.appendChild(input);
-        input.focus();
-        
-        // Xử lý khi kết thúc chỉnh sửa
         const finishEdit = () => {
             const newName = input.value.trim();
-            if (newName && newName !== task.name) {
-                updateTaskName(taskId, newName);
-            } else {
-                taskElement.textContent = task.name;
-            }
+            if (newName && newName !== task.name) { updateTaskName(taskId, newName); } 
+            else { taskElement.textContent = task.name; }
             taskElement.classList.remove('editing');
         };
-        
         input.addEventListener('blur', finishEdit);
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                finishEdit();
-            }
-        });
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') finishEdit(); });
     }
 
     function updateTaskName(taskId, newName) {
@@ -470,15 +787,10 @@
         if (task) { 
             task.name = newName; 
             saveTasks();
-            // Không cần render lại toàn bộ, chỉ cập nhật trực tiếp
-            const taskElement = document.querySelector(`[data-task-id="${taskId}"] .acc-checklist-task-name`);
-            if (taskElement) {
-                taskElement.textContent = newName;
-            }
+            renderTasks(currentChecklistData.tasks);
         }
     }
 
-    // === TÍNH NĂNG MỚI: Xóa công việc ===
     function deleteTask(taskId) {
         if (confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
             const taskIndex = currentChecklistData.tasks.findIndex(t => t.id === taskId);
@@ -530,7 +842,7 @@
                             <th style="width: 5%;">#</th>
                             <th style="width: 40%;">Nội dung công việc</th>
                             <th style="width: 15%;">Trạng thái</th>
-                            <th style="width: 15%;">Hạn chót</th>
+                            <th style="width: 15%;">Kế hoạch</th>
                             <th style="width: 20%;">Ghi chú</th>
                             <th style="width: 5%;">Xóa</th>
                         </tr>
@@ -538,6 +850,11 @@
                 const tbody = document.createElement('tbody');
                 tasksInPart.filter(t => t.category === category).forEach(task => {
                     const placeholder = NOTE_PLACEHOLDERS[task.part] || 'Vui lòng mô tả chi tiết công việc đã thực hiện...';
+                    
+                    const overdueBadge = isTaskOverdue(task) 
+                        ? `<span class="task-overdue-badge"><i class="bi bi-exclamation-octagon-fill"></i> CÓ VIỆC TRỄ HẠN</span>` 
+                        : '';
+
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-task-id', task.id);
                     tr.innerHTML = `
@@ -546,6 +863,7 @@
                             <div class="acc-checklist-task-name" onclick="editTaskName(${task.id})">
                                 ${task.name}
                             </div>
+                            ${overdueBadge}
                         </td>
                         <td>
                             <select class="form-select form-select-sm acc-checklist-status-select" 
@@ -555,7 +873,11 @@
                                 <option value="completed">Hoàn thành</option>
                             </select>
                         </td>
-                        <td><input type="date" class="form-control form-control-sm" value="${task.deadline || ''}" onchange="updateDeadline(${task.id}, this.value)"></td>
+                        <td>
+                            <button class="btn btn-dark btn-sm text-white w-100 fw-bold" onclick="openPlanner(${task.id})">
+                                <i class="bi bi-calendar-check"></i> Lập KH
+                            </button>
+                        </td>
                         <td>
                             <textarea class="form-control form-control-sm acc-checklist-notes-input" 
                                       rows="2" 
@@ -580,7 +902,6 @@
         updateDashboard();
     }
 
-    // === Các hàm còn lại giữ nguyên ===
     async function loadAccountantList() {
         const listDiv = document.getElementById('acc-checklist-accountantList');
         listDiv.innerHTML = `<div class="text-center p-3"><div class="spinner-border text-primary"></div></div>`;
@@ -692,12 +1013,11 @@
         const name = document.getElementById('acc-checklist-taskName').value;
         const part = document.getElementById('acc-checklist-taskPart').value;
         const category = document.getElementById('acc-checklist-taskCategory').value;
-        const deadline = document.getElementById('acc-checklist-taskDeadline').value;
         if (name && part && category) {
             const newId = currentChecklistData.tasks.length > 0 ? Math.max(...currentChecklistData.tasks.map(t => t.id)) + 1 : 1;
             const newTask = {
                 id: newId, part: part, category: category, name: name,
-                status: 'not-started', notes: '', deadline: deadline
+                status: 'not-started', notes: ''
             };
             currentChecklistData.tasks.push(newTask);
             saveTasks();
@@ -722,6 +1042,8 @@
         const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
         progressBar.style.width = `${percentage}%`;
         progressBar.innerText = `${percentage}%`;
+
+        checkDailyProgress();
     }
 
     function updateSelectColor(select, status) {
@@ -744,7 +1066,6 @@
         }
     }
 
-    // === CẬP NHẬT: Xử lý Modal Báo Cáo cho PDF ===
     document.getElementById('acc-checklist-reportModal').addEventListener('show.bs.modal', function () {
         if (!currentChecklistData) return;
         const { accountantName, tasks } = currentChecklistData;
@@ -757,7 +1078,6 @@
         const notStarted = total - completed - inProgress;
         const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-        // Xây dựng nội dung HTML cho báo cáo
         let html = `
             <div class="report-header">
                 <h3>BÁO CÁO TIẾN ĐỘ CÔNG VIỆC KẾ TOÁN</h3>
@@ -792,7 +1112,6 @@
             <h5 class="report-section-title">CHI TIẾT CÔNG VIỆC</h5>
         `;
 
-        // Nhóm công việc theo phần
         const parts = [...new Set(tasks.map(t => t.part))];
         parts.forEach(part => {
             html += `<h6 class="mt-3 text-uppercase fw-bold text-primary">${part}</h6>`;
@@ -800,75 +1119,58 @@
                 <table class="table table-bordered table-sm" style="font-size: 12px;">
                     <thead class="table-light">
                         <tr>
-                            <th style="width: 50%">Tên công việc</th>
+                            <th style="width: 40%">Tên công việc</th>
+                            <th style="width: 25%">Mục tiêu</th>
                             <th style="width: 15%">Trạng thái</th>
-                            <th style="width: 35%">Ghi chú</th>
+                            <th style="width: 20%">Ghi chú</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
-            
             const tasksInPart = tasks.filter(t => t.part === part);
             tasksInPart.forEach(task => {
-                let statusText = '';
-                let statusClass = '';
+                let statusText = '', statusClass = '';
+                if (task.status === 'completed') { statusText = 'Hoàn thành'; statusClass = 'text-success fw-bold'; }
+                else if (task.status === 'in-progress') { statusText = 'Đang làm'; statusClass = 'text-warning fw-bold'; }
+                else { statusText = 'Chưa làm'; statusClass = 'text-danger'; }
                 
-                if (task.status === 'completed') {
-                    statusText = 'Hoàn thành';
-                    statusClass = 'text-success fw-bold';
-                } else if (task.status === 'in-progress') {
-                    statusText = 'Đang làm';
-                    statusClass = 'text-warning fw-bold';
-                } else {
-                    statusText = 'Chưa làm';
-                    statusClass = 'text-danger';
+                // Lấy mục tiêu từ planner nếu có
+                let objective = '';
+                if (task.weeklyPlan && task.weeklyPlan.objective) {
+                    objective = `<span class="text-primary fst-italic">${task.weeklyPlan.objective}</span>`;
                 }
 
                 html += `
                     <tr>
                         <td>${task.name}</td>
+                        <td>${objective}</td>
                         <td class="${statusClass}">${statusText}</td>
                         <td>${task.notes || ''}</td>
-                    </tr>
-                `;
+                    </tr>`;
             });
-
             html += `</tbody></table>`;
         });
-
         document.getElementById('acc-checklist-reportContent').innerHTML = html;
     });
 
-    // === TÍNH NĂNG MỚI: Hàm xuất PDF ===
     window.exportToPDF = function() {
         const element = document.getElementById('acc-checklist-reportContent');
         if (!currentChecklistData) return;
-        
-        // Cấu hình cho html2pdf
         const opt = {
-            margin:       10, // lề mm
+            margin:       10,
             filename:     `BaoCao_KeToan_${currentChecklistData.accountantName}_Thang${new Date().getMonth()+1}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 }, // Tăng scale để chữ nét hơn
+            html2canvas:  { scale: 2 },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-
-        // Tạo hiệu ứng loading cho nút
         const btn = document.querySelector('button[onclick="exportToPDF()"]');
         const oldText = btn.innerHTML;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang tạo PDF...';
         btn.disabled = true;
-
-        // Thực hiện xuất PDF
         html2pdf().set(opt).from(element).save().then(() => {
-            // Khôi phục nút sau khi xong
-            btn.innerHTML = oldText;
-            btn.disabled = false;
+            btn.innerHTML = oldText; btn.disabled = false;
         }).catch(err => {
-            console.error(err);
-            alert("Lỗi khi xuất PDF");
-            btn.innerHTML = oldText;
-            btn.disabled = false;
+            console.error(err); alert("Lỗi khi xuất PDF"); btn.innerHTML = oldText; btn.disabled = false;
         });
     };
 
@@ -883,6 +1185,7 @@
         currentChecklistData.tasks.forEach(task => {
             task.status = 'not-started';
             task.notes = '';
+            task.weeklyPlan = null;
         });
         try {
             await saveTasks();
