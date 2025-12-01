@@ -707,32 +707,38 @@
         return day;
     }
 
-    // === CẬP NHẬT: LOGIC KIỂM TRA TRỄ HẠN THÔNG MINH ===
+    // === CẬP NHẬT: LOGIC KIỂM TRA TRỄ HẠN THÔNG MINH (DỰA TRÊN NGÀY THỰC TẾ) ===
     function isTaskOverdue(task) {
         if (!task.weeklyPlan) return false;
         
-        const currentIdx = getCurrentDayIndex();
+        // Lấy ngày hôm nay (reset giờ về 0 để so sánh chính xác)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
         for (const [dayName, items] of Object.entries(task.weeklyPlan)) {
             // Bỏ qua field objective
             if (dayName === 'objective') continue;
 
-            const dayIdx = DAY_INDEX_MAP[dayName];
-            
-            // CHỈ KIỂM TRA CÁC NGÀY TRƯỚC HÔM NAY
-            if (dayIdx < currentIdx) {
-                if (items && Array.isArray(items)) {
-                    // Logic mới: Một item được coi là trễ hạn khi:
-                    // 1. Chưa xong (!isDone)
-                    // 2. ĐÃ CÓ Nội dung (content)
-                    // 3. ĐÃ THIẾT LẬP Ngày bắt đầu VÀ Ngày kết thúc
-                    const hasOverdueItem = items.some(item => {
-                        const isConfigured = item.content && item.content.trim() !== '' && item.start && item.end;
-                        return isConfigured && !item.isDone;
-                    });
+            if (items && Array.isArray(items)) {
+                // Logic mới: Một item được coi là trễ hạn khi:
+                // 1. Chưa xong (!isDone)
+                // 2. ĐÃ CÓ Nội dung (content) VÀ Ngày kết thúc (end)
+                // 3. NGÀY KẾT THÚC < NGÀY HÔM NAY (Quá khứ)
+                const hasOverdueItem = items.some(item => {
+                    if (!item.content || !item.content.trim() || !item.end) return false;
+                    
+                    // Nếu đã xong thì bỏ qua
+                    if (item.isDone) return false;
 
-                    if (hasOverdueItem) return true;
-                }
+                    // So sánh ngày kết thúc với ngày hôm nay
+                    const endDate = new Date(item.end);
+                    endDate.setHours(0, 0, 0, 0);
+
+                    // Nếu ngày kết thúc NHỎ HƠN ngày hôm nay -> Đã quá hạn
+                    return endDate < today;
+                });
+
+                if (hasOverdueItem) return true;
             }
         }
         return false;
