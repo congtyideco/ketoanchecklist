@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -703,30 +704,29 @@
     // DANH SÁCH CÔNG VIỆC MẪU KINH DOANH (Phụ trách Kinh doanh)
     const SALES_SAMPLE_TASKS = [
         // Quản lý & Chăm sóc KH Hiện tại
-        { name: 'Tìm hiểu quy định Công ty, cách sử dụng phần mềm ERP', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng ngày', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
-        { name: 'Thực hiện xử lý - kiểm tra khách hàng đặt hàng nhóm Thuốc', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng ngày', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
-        { name: 'Thực hiện triển khai giới thiệu thuốc mới/sản phẩm mới/gởi CTKM đến khách hàng', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng tuần', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
-        { name: 'Thực hiện xử lý thủ tục khách hàng đổi trả sản phẩm - trao đổi nội bộ, nhắc nợ khách hàng', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng ngày', notes: 'Phối hợp với kế toán' },
-        { name: 'Thực hiện triển khai lại với khách đã từng giao dịch với Công ty', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng tuần', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
-        { name: 'Thực hiện đối chiếu hàng - xử lý đơn hàng cho chuỗi NT (nếu có)', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng ngày', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
+        { name: 'Định kỳ kiểm tra - upload đơn hàng trong kỳ vào ứng dụng quản lý đặt hàng để xem xét kế hoạch xúc tiến', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng ngày', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
+        { name: 'Định kỳ xem lại các khách hàng chưa lấy đơn để gọi - xúc tiến -gặp trực tiếp', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng ngày', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
+        { name: 'Triển khai giới thiệu lại sản phẩm mà khách hàng chưa hợp tác các nhóm thuốc - không phải thuốc', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng tuần', notes: 'Doanh số - tổng số khách hàng đặt - việc đã xử lý thế nào' },
+        { name: 'Mục xử lý thông tin khách hàng nếu có: đổi trải - báo giá mới ', part: 'Quản lý & Chăm sóc KH Hiện tại', category: 'Hằng ngày', notes: 'Phối hợp với kế toán' },
+        
         
         // Phát triển Khách hàng Mới
-        { name: 'Thực hiện mục tiêu/kế hoạch phát triển khách hàng nhóm UVS- Dầu gội phủ bạc', part: 'Phát triển Khách hàng Mới', category: 'Hằng tuần', notes: 'Đã phát triển bao nhiêu khách hàng; khai báo giao dịch thế nào; có lấy đơn?' },
-        { name: 'Thực hiện mục tiêu/kế hoạch phát triển khách hàng nhóm thuốc', part: 'Phát triển Khách hàng Mới', category: 'Hằng tuần', notes: 'Mục tiêu: 5 KH mới/tuần' },
+        { name: 'Công việc triển khai mục tiêu khách hàng mới trong kỳ cho UVS', part: 'Phát triển Khách hàng Mới', category: 'Hằng tuần', notes: 'Đã phát triển bao nhiêu khách hàng; khai báo giao dịch thế nào; có lấy đơn?' },
+        { name: 'Công việc phát triển mục tiêu khách hàng mới cho nhóm Thuốc', part: 'Phát triển Khách hàng Mới', category: 'Hằng tuần', notes: 'Mục tiêu: 5 KH mới/tuần' },
         { name: 'Thực hiện kiểm tra- cập nhật lại báo cáo giao dịch theo phát sinh mới', part: 'Phát triển Khách hàng Mới', category: 'Hằng ngày', notes: 'Đã phát triển bao nhiêu khách hàng; khai báo giao dịch thế nào; có lấy đơn?' },
-        { name: 'Gửi báo giá, đàm phán, thương lượng hợp đồng', part: 'Phát triển Khách hàng Mới', category: 'Hằng ngày', notes: 'Đã phát triển bao nhiêu khách hàng; khai báo giao dịch thế nào; có lấy đơn?' },
-        { name: 'Hoàn tất thủ tục mở khách hàng mới trên hệ thống', part: 'Phát triển Khách hàng Mới', category: 'Hằng ngày', notes: 'Đã mở được 5 khách hàng mới - SP UVS' },
+        { name: 'Kế hoạch đi thị trường - hay kế hoạch tương tác trong kỳ ', part: 'Phát triển Khách hàng Mới', category: 'Hằng ngày', notes: 'Đã phát triển bao nhiêu khách hàng; khai báo giao dịch thế nào; có lấy đơn?' },
+        { name: 'Hoàn thành khai báo giao dịch khách hàng mới- cập nhật báo cáo - thiết lập giao dịch', part: 'Phát triển Khách hàng Mới', category: 'Hằng ngày', notes: 'Đã mở được 5 khách hàng mới - SP UVS' },
         
         // Điều phối Đơn hàng & Vận hành
         { name: 'Xử lý - đối soát các nội dung cung cấp thông tin, chứng từ cho khách hàng', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng ngày', notes: 'Các nội dung xử lý đơn hàng - điều phối hàng - chứng từ - thu hồi nợ - giao dịch' },
-        { name: 'Cập nhật lại các dữ liệu lên ứng dụng trong kỳ: khách hàng đặt hàng / chuỗi NT (nếu có)', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng ngày', notes: 'Các nội dung xử lý đơn hàng - điều phối hàng - chứng từ - thu hồi nợ - giao dịch' },
-        { name: 'Xử lý các thủ tục phát sinh liên quan đến chứng từ/ tài liệu/hàng hóa nội bộ', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng ngày', notes: 'Đảm bảo tuân thủ GDP, SOP' },
+        { name: 'Công việc xem lại hàng hóa - đơn hàng giao - chứng từ - nhắc công nợi', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng ngày', notes: 'Các nội dung xử lý đơn hàng - điều phối hàng - chứng từ - thu hồi nợ - giao dịch' },
+        { name: 'Tổng kế các khách hàng giao phụ trách - chạy số liệu chuỗi NT - nhắc thông tin về hàng hóa - giá', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng ngày', notes: 'Đảm bảo tuân thủ GDP, SOP' },
         { name: 'Theo dõi tiến trình giao hàng và xác nhận với khách hàng/ đổi trả hàng phát sinh', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng ngày', notes: 'Các nội dung xử lý đơn hàng - điều phối hàng - chứng từ - thu hồi nợ - giao dịch' },
-        { name: 'Xử lý thông tin báo giá/văn bản thông báo giá/ in lưu chứng từ công việc trong tuần', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng tuần', notes: 'Các nội dung xử lý đơn hàng - điều phối hàng - chứng từ - thu hồi nợ - giao dịch' },
+        { name: 'Công việc điều chỉnh khác phát sinh trong kỳ', part: 'Điều phối Đơn hàng & Vận hành', category: 'Hằng tuần', notes: 'Các nội dung xử lý đơn hàng - điều phối hàng - chứng từ - thu hồi nợ - giao dịch' },
         
         // Báo cáo & Công việc Khác
-        { name: 'Ra sót kế hoạch - bấm hoàn thành - báo cáo nội dung lưu chuyển báo cáo', part: 'Báo cáo & Công việc Khác', category: 'Hằng tuần', notes: 'Đã xử lý phát sinh thế nào - phối hợp - nghiệm thu ra sao' },
-        { name: 'Ra soát cập nhật báo cáo giao dịch khách hàng cho đúng khai báo', part: 'Báo cáo & Công việc Khác', category: 'Hằng tháng', notes: 'Hạn cuối: ngày 2 của tháng sau' },
+        { name: 'Kiểm tra các nội dung ứng dụng đặt hàng - báo cáo kinh doanh - kiểm tra tổng các đơn chưa giao - đã giao', part: 'Báo cáo & Công việc Khác', category: 'Hằng tuần', notes: 'Đã xử lý phát sinh thế nào - phối hợp - nghiệm thu ra sao' },
+        { name: 'Công việc phối hợp nội bộ để điều phối nếu có', part: 'Báo cáo & Công việc Khác', category: 'Hằng tháng', notes: 'Hạn cuối: ngày 2 của tháng sau' },
         { name: 'Báo cáo KPI tháng - đối chiếu kết quả cuối kỳ nội bộ', part: 'Báo cáo & Công việc Khác', category: 'Hằng tháng', notes: 'Đã xử lý phát sinh thế nào - phối hợp - nghiệm thu ra sao' }
     ];
 
@@ -734,21 +734,20 @@
     const WAREHOUSE_SAMPLE_TASKS = [
         // Kiểm kê & Đối chiếu
         { name: 'Kiểm kê tồn kho đầu kỳ và đối chiếu số liệu', part: 'Kiểm kê & Đối chiếu', category: 'Đầu kỳ', notes: 'Đã thực hiện rà soát các khách hàng tuyến giao trong khu vực', deadline: '' },
-        { name: 'Rà soát danh sách khách hàng, tuyến giao hàng, khu vực', part: 'Kiểm kê & Đối chiếu', category: 'Đầu kỳ', notes: 'Đã thực hiện rà soát các khách hàng tuyến giao trong khu vực', deadline: '' },
-        { name: 'Kiểm tra lại việc đăng ký gia hạn thiết bị đo nhiệt độ kho', part: 'Kiểm kê & Đối chiếu', category: 'Đầu kỳ', notes: 'Đã kiểm tra có đầy đủ 3 phiếu kiểm định 2023 - 2024 - 2025', deadline: '2025-11-30' },
+        { name: 'Công việc lý chứng từ hàng mua về: khai báo - xuất phiếu - biên bảng - kiểm tồn phát sinh', part: 'Kiểm kê & Đối chiếu', category: 'Đầu kỳ', notes: 'Đã thực hiện rà soát các khách hàng tuyến giao trong khu vực', deadline: '' },
+        { name: 'Công việc khai báo thông tin dữ liệu : nhiệt độ - thủ tục đổi trả hàng - kiểm tra giao nhận đến khách hàng', part: 'Kiểm kê & Đối chiếu', category: 'Đầu kỳ', notes: 'Đã kiểm tra có đầy đủ 3 phiếu kiểm định 2023 - 2024 - 2025', deadline: '2025-11-30' },
         
         // Điều phối & Xuất hàng
-        { name: 'Thực hiện điều phối nhận hàng trong ngày/tuần - yêu cầu gợi phiếu xuất hàng trước', part: 'Điều phối & Xuất hàng', category: 'Trong kỳ', notes: 'Hàng xuất trong ngày phải có phiếu xuất kho và có đầy đủ chữ ký xác nhận thì mới xuất hàng ra khỏi kho và giao khách hay đơn vị vận chuyển', deadline: '' },
-        { name: 'Thực hiện phối hợp kiểm tra- khai thủ tục nhập kho hàng trong tuần / chứng từ nhập kho', part: 'Điều phối & Xuất hàng', category: 'Trong kỳ', notes: 'Hàng hóa khi vào kho luôn đầy đủ chứng từ', deadline: '' },
+        { name: 'Công việc lập phiếu xuất hàng - đòng hàng - khai báo ứng dụng - chuyển giao hàng', part: 'Điều phối & Xuất hàng', category: 'Trong kỳ', notes: 'Hàng xuất trong ngày phải có phiếu xuất kho và có đầy đủ chữ ký xác nhận thì mới xuất hàng ra khỏi kho và giao khách hay đơn vị vận chuyển', deadline: '' },
+        { name: 'Công việc khai báo giao nhận -tổng hợp giao nhận - chứng từ thu hộ khi giao nhận hoàn thành', part: 'Điều phối & Xuất hàng', category: 'Trong kỳ', notes: 'Hàng hóa khi vào kho luôn đầy đủ chứng từ', deadline: '' },
         { name: 'Thực hiện việc kiểm hàng - nhập dữ liệu đóng gói - giao nhận phát sinh ngày', part: 'Điều phối & Xuất hàng', category: 'Trong kỳ', notes: 'Thực hiện điền lưu file đóng hàng - giao hàng đầy đủ theo từng ngày trong tuần', deadline: '' },
         
         // Giao hàng & Thu tiền
-        { name: 'Thực hiện kiểm tra tình trạng đơn hàng chuẩn bị giao: phiếu xuất kho - in tem nhãn giao nhận', part: 'Giao hàng & Thu tiền', category: 'Trong kỳ', notes: 'Hàng trước khi giao đơn vị vận chuyển luôn được in tem vận chuyển dán lên thùng đầy đủ cẩn thận', deadline: '' },
+        { name: 'Công việc kiểm tra đơn hàng giao: thông tin - xác nhận - nhắc gởi chứng từ hóa đơn cho khách hàng', part: 'Giao hàng & Thu tiền', category: 'Trong kỳ', notes: 'Hàng trước khi giao đơn vị vận chuyển luôn được in tem vận chuyển dán lên thùng đầy đủ cẩn thận', deadline: '' },
         { name: 'Thực hiện công tác giao hàng trong ngày - nhập liệu giao hàng - kiểm tra giao hàng', part: 'Giao hàng & Thu tiền', category: 'Trong kỳ', notes: 'Hoàn thành đầy đủ đúng theo qui định', deadline: '' },
         { name: 'Thực hiện công tác thu tiền- kiểm tra đối soát thu tiền- thông báo đến kế toán-BGĐ', part: 'Giao hàng & Thu tiền', category: 'Trong kỳ', notes: 'Hàng giao xong cuối ngày đều được nộp đầy đủ, không sai sót về cho BGĐ', deadline: '' },
         { name: 'Giải quyết các vấn đề phát sinh từ khách hàng (hủy đơn, đổi trả...)', part: 'Giao hàng & Thu tiền', category: 'Trong kỳ', notes: 'Trong tháng đã xảy ra đơn trả hàng từ Cty Long Châu khi giao hàng cho Long An do sai số lô date, sau khi nhận hàng trả kho đã thực hiện điều chỉnh sản phẩm sai lô date và giao lại hàng thành công cho kho Long Châu - Long An', deadline: '' },
-        { name: 'Thực hiện nhiệm vụ giao trong tuần theo định hướng/ phát sinh liên quan đến kho - giao nhận', part: 'Giao hàng & Thu tiền', category: 'Trong kỳ', notes: '', deadline: '' },
-        
+     
         // Báo cáo & Tổng kết
         { name: 'Thực hiện đối chiếu số liệu kho - kiểm kho -sắp xếp lại kho', part: 'Báo cáo & Tổng kết', category: 'Cuối kỳ', notes: 'Đã thực hiện kiểm kê kho cuối tháng 11.2025', deadline: '' },
         { name: 'Kiểm tra thủ tục khai báo -SOP quản lý kho', part: 'Báo cáo & Tổng kết', category: 'Cuối kỳ', notes: '', deadline: '' }
